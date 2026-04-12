@@ -1,48 +1,46 @@
-# Chiến Lược Định Giá — Cà Phê Nhân Tâm
+# 🎯 Chiến Lược Định Giá Đối Tác — Cà Phê Nhân Tâm
 
-> **Cảnh báo chiến lược:** Việc định giá cho mô hình B2B "Zero Trung Gian" (Từ xưởng đến thẳng xe đẩy/quán) rất dễ trượt vào cái bẫy "Cứ rẻ là bán". Định giá đúng không chỉ bảo vệ dòng tiền mà còn là TẤM KHIÊN bảo vệ định vị "Tử Tế, Chuẩn Mộc".
+> **Góc nhìn chiến lược:** Trong mô hình B2B "Zero Trung Gian", định giá không chỉ là con số, mà là phương án giúp quán của bạn **tối ưu hoá biên lợi nhuận ròng**. Chúng tôi không cạnh tranh bằng giá rẻ nhất, chúng tôi cạnh tranh bằng **giá trị kinh tế thực tế trên từng ly cà phê**.
 
-## 1. Phương pháp: Định giá theo "Bậc Thang Nhu Cầu" (Tiered Volume Pricing)
+## 1. Phương pháp: "Giá Sỉ Ngay Từ Bước Đầu" (Wholesale First)
 
-Vì chúng ta đã **CẮT BỎ CHÍNH SÁCH MẪU THỬ MIỄN PHÍ**, gói 1kg giờ đây đóng vai trò là "Bức tường thử thách" đầu tiên. Không thể bán 1kg với giá bằng 10kg được.
+Chúng tôi hiểu rằng startup cần sự tinh gọn. Vì vậy, Nhân Tâm xóa bỏ mọi rào cản về MOQ (số lượng tối thiểu) để bạn yên tâm thử nghiệm:
 
-| Phân Cấp | Định Lượng | Mức Giá (Mô phỏng) | Vai Trò Chiến Lược |
-|---|---|---|---|
-| **Tier 1 (Dùng thử)** | 1 kg | **100% Giá chuẩn** | Khách dùng gói này thay cho mẫu thử. Tỷ suất lợi nhuận cao nhất để bù đắp chi phí đóng gói lắt nhắt và chi phí Sale tư vấn ban đầu. |
-| **Tier 2 (Sỉ tiêu chuẩn)** | 5 kg | **Giảm 10 - 12%** | Xóa bỏ rào cản tài chính cho xe đẩy. Đây là "Giá Sàn Cấp 1" mà chúng ta hứa hẹn. MOQ 5kg là khoảng vừa đủ để họ trải nghiệm pha chế trong 1 tuần. |
-| **Tier 3 (Sỉ trung thành)**| >15 kg | **Giảm 15 - 18%** | Giữ chân khách hàng. Khách đã nhập mức này là khách ổn định. Mức giá này thực sự là "Giá gốc xuất xưởng" đẩy thẳng ra ngoài. |
-
-**Tâm lý học đằng sau:** Khách sẽ thấy rõ sự trân trọng khi họ nỗ lực mua nhiều hơn. Gói 1kg dù giá có cao hơn một chút so với kỳ vọng sỉ, nhưng nó loại bỏ được các khách hàng phễu rác.
+- **Chính sách 1kg Trải nghiệm:** Mua 1kg đầu tiên, chúng tôi tính ngay **Giá Sỉ**. Đây là cam kết đồng hành để bạn kiểm chứng chất lượng và định mức trên máy của quán mà không lo về giá vốn.
+- **Giá Sàn Trực Tiếp:** Toàn bộ bảng giá đều là giá xuất xưởng, đã cắt bỏ mọi chi phí trung gian và hoa hồng đại lý để đẩy lợi nhuận về phía chủ quán.
 
 ---
 
-## 2. Thông Điệp Định Giá: Bán "Giá Vốn Ly" thay vì "Giá Ký" (Unit Economics)
+## 2. Bài Toán Kinh Tế: "Điểm Hoà Vốn" & "Chi Phí Trên Mỗi Ly"
 
-Đây là đòn bẩy **Triệt hạ mọi đối thủ bán cà phê rẻ trộn bơ đậu nành.** 
+Đừng nhìn vào giá ký, hãy nhìn vào **định mức sử dụng thực tế**. Cà phê rẻ tiền thường mang lại rủi ro vận hành cao và hao hụt lớn.
 
-Đối thủ thường đánh lận con đen: Cà phê tẩm trộn có giá 120k/kg (rất rẻ). Nhân Tâm bán cà phê nguyên bản (Mộc) có giá 160k/kg. Khách thường thốt lên: *"Bên kia bán rẻ hơn 40k cơ mà!"*
+**Bảng so sánh tối ưu vận hành:**
 
-**Cách chúng ta định giá và phân tích cho khách:**
-- Hạt trộn tẩm bơ thì bột bị ẩm rít, pha Espresso hay Phin đều rất hao. Để đậm vị, chủ quán phải đắp **25 gram / 1 ly**. Suy ra 1kg đánh được **40 ly**. (Ly cốt giá = `3.000đ`).
-- Hạt MỘC chuẩn của Nhân Tâm tinh sạch, 1 shot Espresso chuẩn hoặc 1 phin chỉ cần đúng **18 gram / 1 ly**. Suy ra 1kg đánh được **55 ly**. (Ly cốt giá = `2.900đ`).
+| Chỉ số | Cà phê tẩm / Hạt kém phẩm (120k/kg) | Hạt Mộc Nhân Tâm (Ví dụ: 220k/kg) |
+|---|---|---|
+| **Định mức chuẩn** | 25g/ly (Do hao hụt, bột rít ẩm) | **18g/ly** (Hạt khô, sạch máy) |
+| **Sản lượng** | 40 ly/kg | **55 ly/kg** |
+| **Giá vốn (Cốt) / ly** | 3.000đ | **4.000đ** |
+| **Lợi ích vận hành** | Hại dao máy xay, rỉ sét máy pha | Bảo vệ thiết bị, chuẩn hoá hương vị |
 
-> **Kết luận thép:** Hạt Nhân Tâm 160k/kg thực tế pha ra lại SẢN SINH LỢI NHUẬN CAO HƠN hạt rẻ 120k/kg. Chưa kể hạt ráp bơ sẽ làm hỏng máy ép (tốn thêm tiền rửa máy, thay dao ron).
-
----
-
-## 3. Chiến Lược Thu Phí Giá Trị Gia Tăng (Premium Customization)
-
-Khả năng "Mix & Match" tự do của Nhân Tâm là một USP độc quyền cực mạnh. Hãy làm nó có giá!
-
-*   **Bộ Blend Tiêu chuẩn (Sài Gòn Bold, Sài Gòn Smooth):** Áp dụng bảng giá Tier phía trên.
-*   **Gu Riêng (Tự chọn tỷ lệ Culi/Arabica/Robusta):** Tối thiểu ráp mẻ 5kg, và Cộng thêm `+10k/kg` phí vận hành cá nhân hóa.
-
-**Vì sao thu thêm 10k?** Vì điều đó gieo vào đầu chủ quán một khái niệm: *"Tôi đang trả tiền để xưởng rang riêng một công thức bí mật chỉ quán tôi có"*. Họ sẽ không bao giờ muốn đổi xưởng khác vì các xưởng khác không hiểu "Gu" này đánh tỷ lệ bao nhiêu. 
+> **Phân tích chiến lược:** Với Nhân Tâm, dù giá ký cao hơn, nhưng giá vốn mỗi ly chỉ chênh lệch ~1.000đ. Đổi lại, bạn có một sản phẩm chuẩn mộc giúp giữ khách trung thành — đây chính là yếu tố sống còn để quán đạt **điểm hòa vốn nhanh hơn**.
 
 ---
 
-## 4. Tóm Tắt Quy Tắc Cho Telesale / AI Agent:
+## 3. Bản Sắc Riêng: Custom Mix & Match (+10k/kg)
 
-1. **Không mặc cả giá đáy:** "Anh/Chị thông cảm, bên em là xưởng, giá báo đã là giá mộc sàn. Đứt 1 li là thâm hụt chất lượng hạt."
-2. **Nói về số ly, không nói số ký:** "1 kí bên em ép được 55-60 ly tùy tay canh. Anh chia ra cốt chưa tới 3k/ly, dư sức bán ly 15k lãi đậm."
-3. **Mồi nhử Vận chuyển thay vì Giá hạt:** "Giá xưởng em giữ nguyên để bảo vệ nguồn hạt chuẩn, nhưng em hỗ trợ anh free-ship đoạn nội thành đợt này xem như hỗ trợ quán lấy lộc."
+Chúng tôi cung cấp giải pháp **phối trộn công thức độc quyền** để quán của bạn có gu vị không thể sao chép:
+
+- Phí vận hành cá nhân hoá: `+10k/kg`.
+- Lợi ích: Bạn sở hữu một tài sản vô hình là "Gu vị riêng", khiến khách hàng chỉ có thể tìm thấy hương vị này tại quán của bạn.
+
+---
+
+## 4. Quy tắc của AI Agent & Đội ngũ Sales:
+
+1. **Tập trung vào "Unit Economics"**: Luôn chia nhỏ giá ký ra giá mỗi ly để khách thấy sự hiệu quả.
+2. **Nói về sự bền vững**: Nhắc khách về chi phí sửa máy và uy tín thương hiệu khi dùng hạt kém chất lượng.
+3. **Giải pháp vận hành**: Đề xuất tỷ lệ pha chuẩn (Ratio) để khách tối ưu được số ly trên mỗi kg hạt.
+
+*Hệ thống ClaudeKit Marketing — Tư duy Chiến lược & Hành động Chân thực.*
