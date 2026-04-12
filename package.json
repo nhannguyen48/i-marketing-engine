@@ -7,7 +7,10 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm run build --prefix apps/meeting-ntcf-web",
+    "start": "npm run start --prefix apps/meeting-ntcf-web",
+    "dev": "npm run dev --prefix apps/meeting-ntcf-web"
   },
   "keywords": [],
   "author": "",
