@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biên Bản Họp #0002 — Cà Phê Nhân Tâm</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brown-dark: #2B1408;
+    --cream: #FDF8ED;
+    --green: #3E6145;
+    --orange: #C65C33;
+    --brown-mid: #3D1E0A;
+    --brown-light: #5C3317;
+    --brown-card: #4A2510;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--brown-dark);
+    color: var(--cream);
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 0 0 60px;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--brown-mid);
+    border-bottom: 3px solid var(--orange);
+    padding: 32px 40px 28px;
+  }
+  .header-logo {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--orange);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .header-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--cream);
+    margin-bottom: 6px;
+  }
+  .header-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: rgba(253,248,237,0.6);
+  }
+  .header-meta span { display: flex; align-items: center; gap: 6px; }
+
+  /* CONTAINER */
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 40px 0; }
+
+  /* SECTION */
+  .section { margin-bottom: 36px; }
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(198,92,51,0.25);
+  }
+
+  /* ATTENDEES */
+  .attendees { display: flex; flex-wrap: wrap; gap: 10px; }
+  .avatar-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--brown-card);
+    border-radius: 40px;
+    padding: 7px 14px 7px 7px;
+    font-size: 13px;
+  }
+  .avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .avatar-name { font-weight: 600; color: var(--cream); }
+  .avatar-role { font-size: 11px; color: rgba(253,248,237,0.55); }
+
+  /* DISCUSSION */
+  .discussion-item {
+    background: var(--brown-card);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    border-left: 3px solid transparent;
+  }
+  .discussion-item.key { border-left-color: var(--orange); }
+  .discussion-speaker {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    color: var(--orange);
+  }
+  .discussion-text { color: rgba(253,248,237,0.88); font-size: 14px; }
+  .quote {
+    font-style: italic;
+    background: var(--brown-mid);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-top: 8px;
+    font-size: 13.5px;
+    color: var(--cream);
+    border-left: 2px solid var(--green);
+  }
+
+  /* APPROVED PLAN */
+  .approved-box {
+    background: var(--green);
+    border-radius: 12px;
+    padding: 22px 24px;
+  }
+  .approved-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .approved-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .approved-desc { font-size: 14px; opacity: 0.9; }
+
+  /* TASK TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead tr { background: var(--brown-mid); }
+  th {
+    text-align: left;
+    padding: 12px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(253,248,237,0.6);
+  }
+  td { padding: 12px 14px; border-bottom: 1px solid rgba(253,248,237,0.07); }
+  tr:last-child td { border-bottom: none; }
+  tbody tr { background: var(--brown-card); }
+  tbody tr:hover { background: var(--brown-light); }
+  .skill-tag {
+    display: inline-block;
+    background: var(--brown-mid);
+    border: 1px solid rgba(198,92,51,0.35);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-family: monospace;
+    color: var(--orange);
+  }
+  .status-done {
+    display: inline-block;
+    background: var(--green);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .status-pending {
+    display: inline-block;
+    background: rgba(198,92,51,0.25);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--orange);
+  }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 40px;
+    font-size: 12px;
+    color: rgba(253,248,237,0.35);
+    border-top: 1px solid rgba(253,248,237,0.08);
+    margin-top: 40px;
+  }
+  .footer strong { color: var(--orange); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">☕ Cà Phê Nhân Tâm</div>
+  <div class="header-title">Meeting #0002 — Series 7 Ngày "Thức Tỉnh"</div>
+  <div class="header-meta">
+    <span>📅 10/04/2026 · 16:19</span>
+    <span>🎯 Content Production</span>
+    <span>⚡ Intensity: Trung bình</span>
+    <span>✅ Phương án A — Đã duyệt</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ATTENDEES -->
+  <div class="section">
+    <div class="section-label">Tham dự</div>
+    <div class="attendees">
+      <div class="avatar-chip">
+        <div class="avatar" style="background:#C65C33">TH</div>
+        <div><div class="avatar-name">Thương</div><div class="avatar-role">PA / Điều phối</div></div>
+      </div>
+      <div class="avatar-chip">
+        <div class="avatar" style="background:#3E6145">MC</div>
+        <div><div class="avatar-name">Minh Châu</div><div class="avatar-role">Trưởng phòng Nội dung</div></div>
+      </div>
+      <div class="avatar-chip">
+        <div class="avatar" style="background:#7B4F9E">HL</div>
+        <div><div class="avatar-name">Hà Linh</div><div class="avatar-role">Social Lead</div></div>
+      </div>
+      <div class="avatar-chip">
+        <div class="avatar" style="background:#4E342E">BA</div>
+        <div><div class="avatar-name">Bảo</div><div class="avatar-role">Research & Intelligence</div></div>
+      </div>
+      <div class="avatar-chip">
+        <div class="avatar" style="background:#B71C1C">KH</div>
+        <div><div class="avatar-name">Khải</div><div class="avatar-role">Giám đốc Kinh doanh</div></div>
+      </div>
+      <div class="avatar-chip">
+        <div class="avatar" style="background:#1565C0">ĐC</div>
+        <div><div class="avatar-name">Đức</div><div class="avatar-role">Campaign Strategy</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISCUSSION -->
+  <div class="section">
+    <div class="section-label">Tóm tắt thảo luận</div>
+
+    <div class="discussion-item key">
+      <div class="discussion-speaker">MINH CHÂU — Nội dung</div>
+      <div class="discussion-text">
+        Raise vấn đề quan trọng: Post 4 trong outline yêu cầu testimonial từ khách hàng, nhưng brand chưa có khách thật. Đề xuất đổi thành "chứng minh bằng quy trình" — so sánh hạt mộc vs. hạt tẩm bằng 3 điểm kỹ thuật trực quan.
+        <div class="quote">"Nếu phải bịa testimonial thì mình không làm — mất uy tín từ bài đầu tiên."</div>
+      </div>
+    </div>
+
+    <div class="discussion-item">
+      <div class="discussion-speaker">BẢO — Research</div>
+      <div class="discussion-text">
+        Confirm: thị trường B2B cà phê nhạy với testimonial staged. Đồng ý đổi Post 4. Ngoài ra raise: CTA trong outline còn vague, thiếu link Zalo OA cụ thể — frictions nhỏ giết conversion.
+      </div>
+    </div>
+
+    <div class="discussion-item">
+      <div class="discussion-speaker">HÀ LINH — Social</div>
+      <div class="discussion-text">
+        Cảnh báo: Post 2 outline yêu cầu video ASMR xưởng rang — asset chưa có. Đề xuất chuyển sang text/image format để không bị block. Nội dung vẫn giữ được chất lượng.
+      </div>
+    </div>
+
+    <div class="discussion-item key">
+      <div class="discussion-speaker">KHẢI — Kinh doanh</div>
+      <div class="discussion-text">
+        Challenge về ROI: bài nào trong 7 bài thực sự đem lại đơn hàng? Đề xuất ưu tiên viết Post 5 (ưu đãi ra mắt) kỹ như Post 1 — không phải viết qua loa. CTA phải đủ cụ thể để convert.
+        <div class="quote">"Marketing đẹp nhưng tháng này doanh thu bao nhiêu?"</div>
+      </div>
+    </div>
+
+    <div class="discussion-item">
+      <div class="discussion-speaker">ĐỨC — Strategy</div>
+      <div class="discussion-text">
+        Đề xuất đăng cách ngày thay vì 7 ngày liên tiếp — có thời gian đo tương tác và điều chỉnh. Bài tương tác tốt có thể boost nhỏ 200–300k (cần duyệt riêng từ Chủ).
+      </div>
+    </div>
+  </div>
+
+  <!-- APPROVED PLAN -->
+  <div class="section">
+    <div class="section-label">Phương án được duyệt</div>
+    <div class="approved-box">
+      <div class="approved-badge">✓ Đã duyệt — Phương án A</div>
+      <div class="approved-title">VIẾT FULL 7 BÀI NGAY</div>
+      <div class="approved-desc">
+        Minh Châu viết copy hoàn chỉnh cho cả 7 bài theo outline đã điều chỉnh:<br>
+        • Post 4 → đổi thành so sánh kỹ thuật hạt mộc vs. hạt tẩm<br>
+        • Post 2 → text/image format, không cần video<br>
+        • CTA → cụ thể với số Zalo + link OA ở mọi bài<br>
+        • Thứ tự viết: Post 1 (polish) → Post 5 (chốt đơn) → Post 2,3,4,6,7<br>
+        • Đăng lịch: cách ngày — không đăng khi chưa được Chủ duyệt từng bài
+      </div>
+    </div>
+  </div>
+
+  <!-- TASK TABLE -->
+  <div class="section">
+    <div class="section-label">Phân công triển khai</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Nhân sự</th>
+          <th>Task</th>
+          <th>Skill</th>
+          <th>Trạng thái</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Minh Châu</strong></td>
+          <td>Polish Post 1 — thêm CTA Zalo cụ thể</td>
+          <td><span class="skill-tag">copywriting</span></td>
+          <td><span class="status-done">✓ Xong</span></td>
+        </tr>
+        <tr>
+          <td><strong>Minh Châu</strong></td>
+          <td>Viết Post 5 — Ưu đãi ra mắt (chốt đơn)</td>
+          <td><span class="skill-tag">write</span></td>
+          <td><span class="status-done">✓ Xong</span></td>
+        </tr>
+        <tr>
+          <td><strong>Minh Châu</strong></td>
+          <td>Viết Post 2 — Chất lượng hạt mộc (text/image)</td>
+          <td><span class="skill-tag">write</span></td>
+          <td><span class="status-done">✓ Xong</span></td>
+        </tr>
+        <tr>
+          <td><strong>Minh Châu</strong></td>
+          <td>Viết Post 3 — Câu chuyện thương hiệu Nhân Tâm</td>
+          <td><span class="skill-tag">write</span></td>
+          <td><span class="status-done">✓ Xong</span></td>
+        </tr>
+        <tr>
+          <td><strong>Minh Châu</strong></td>
+          <td>Viết Post 4 — Phân biệt hạt mộc vs. hạt tẩm hương</td>
+          <td><span class="skill-tag">write</span></td>
+          <td><span class="status-done">✓ Xong</span></td>
+        </tr>
+        <tr>
+          <td><strong>Minh Châu</strong></td>
+          <td>Viết Post 6 — Bí kíp tối ưu định mức nguyên liệu</td>
+          <td><span class="skill-tag">write</span></td>
+          <td><span class="status-done">✓ Xong</span></td>
+        </tr>
+        <tr>
+          <td><strong>Minh Châu</strong></td>
+          <td>Viết Post 7 — Chính sách hợp tác dài hạn khách sỉ</td>
+          <td><span class="skill-tag">write</span></td>
+          <td><span class="status-done">✓ Xong</span></td>
+        </tr>
+        <tr>
+          <td><strong>Chủ</strong></td>
+          <td>Điền số Zalo + link OA thật vào từng bài trước khi đăng</td>
+          <td>—</td>
+          <td><span class="status-pending">⏳ Chờ</span></td>
+        </tr>
+        <tr>
+          <td><strong>Chủ</strong></td>
+          <td>Duyệt từng bài trước khi lên lịch đăng</td>
+          <td>—</td>
+          <td><span class="status-pending">⏳ Chờ</span></td>
+        </tr>
+        <tr>
+          <td><strong>Đức</strong></td>
+          <td>Lên lịch đăng cách ngày (sau khi Chủ duyệt)</td>
+          <td><span class="skill-tag">campaign</span></td>
+          <td><span class="status-pending">⏳ Chờ duyệt</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="footer">
+  Biên bản do <strong>Thương</strong> tổng hợp &nbsp;•&nbsp; Cà Phê Nhân Tâm &nbsp;•&nbsp; 10/04/2026 16:19
+</div>
+
+</body>
+</html>

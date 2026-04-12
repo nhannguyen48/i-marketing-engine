@@ -1,0 +1,25 @@
+const fs = require('fs');
+
+const assContent = `[Script Info]
+Title: Nhan Tam TVC Subtitles
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,50,&H00FFFFFF,&H000000FF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,2,2,2,50,50,150,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:07.00,Default,,0,0,0,,Chào mừng bạn đến với thế giới của Cà Phê Nhân Tâm\\n- nơi mỗi hạt cà phê đều mang trong mình một câu chuyện.
+Dialogue: 0,0:00:07.00,0:00:13.50,Default,,0,0,0,,Bạn đang tìm kiếm sự khác biệt cho quán cà phê của mình?\\nChinh phục thực khách bằng hương vị đậm đà, quyến rũ?
+Dialogue: 0,0:00:13.50,0:00:19.50,Default,,0,0,0,,Hãy nhìn lớp crema dày mịn này.\\nĐó chính là minh chứng cho sự tinh túy của Sài Gòn Bold.
+Dialogue: 0,0:00:19.50,0:00:27.50,Default,,0,0,0,,Hậu vị ngọt thanh, hương thơm nồng nàn, không vỡ phom đá.\\nNhân Tâm đồng hành cùng các startup cà phê Việt.
+Dialogue: 0,0:00:27.50,0:00:34.50,Default,,0,0,0,,Sản phẩm hạt rang mộc nguyên chất, quy trình khép kín,\\nđảm bảo chất lượng vàng cho từng tách cà phê.
+Dialogue: 0,0:00:34.50,0:00:41.50,Default,,0,0,0,,Chương trình ưu đãi vàng: Mua một ký, tính giá xưởng.\\nCơ hội bứt phá doanh thu cho quán của bạn ngay hôm nay.
+Dialogue: 0,0:00:41.50,0:00:43.00,Default,,0,0,0,,Cà Phê Nhân Tâm - Đậm đà bản sắc, trọn vẹn niềm tin.
+`;
+
+fs.writeFileSync('assets/videos/subs.ass', assContent);
+console.log('[+] Đã tạo tệp phụ đề premium: assets/videos/subs.ass');

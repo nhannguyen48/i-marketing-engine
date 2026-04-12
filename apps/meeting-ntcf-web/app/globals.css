@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg:         #F7F0E4;
+  --bg-card:    #FDFAF4;
+  --bg-header:  #EFE3CB;
+  --bg-input:   #F2E8D5;
+  --border:     #DCC99A;
+  --text:       #2B1408;
+  --text-muted: #8A6545;
+  --green:      #3E6145;
+  --orange:     #C65C33;
+  --cream:      #FDF8ED;
+}
+
+html, body {
+  height: 100%;
+  /* Allow rubber-band scroll on iOS but keep body fixed */
+  overscroll-behavior: none;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  /* Push content above iPhone home bar */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Full-height app shell */
+#__next, main { height: 100%; }
+
+/* ── iOS input zoom prevention ───────────────────────────────────────────── */
+/* iOS zooms in when input font-size < 16px. Force minimum on mobile.        */
+@media (max-width: 640px) {
+  textarea, input, select { font-size: 16px !important; }
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(198,92,51,0.25); border-radius: 2px; }
+
+/* ── Typing cursor ───────────────────────────────────────────────────────── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.typing-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--orange);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  border-radius: 1px;
+  animation: blink 0.7s ease-in-out infinite;
+}
+
+/* ── Streaming dots ──────────────────────────────────────────────────────── */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.3; transform: scale(0.7); }
+}
+.streaming-dot { animation: pulse-dot 1s ease-in-out infinite; }
+
+/* ── Message / bubble animations ─────────────────────────────────────────── */
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.msg-appear { animation: msg-in 0.22s ease-out both; }
+
+/* Subtle bounce for new speaker turns */
+@keyframes turn-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.turn-appear { animation: turn-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* ── Safe area utilities ─────────────────────────────────────────────────── */
+.pt-safe  { padding-top:    env(safe-area-inset-top); }
+.pb-safe  { padding-bottom: env(safe-area-inset-bottom); }
+.pl-safe  { padding-left:   env(safe-area-inset-left); }
+.pr-safe  { padding-right:  env(safe-area-inset-right); }

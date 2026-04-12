@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sở Chỉ Huy Marketing AI - Cà Phê Nhân Tâm</title>
+    <style>
+        :root {
+            --bg-color: #FDF8ED; /* Vàng Nhạt Crema */
+            --text-color: #2B1408; /* Nâu Đậm Dark Roast */
+            --primary-accent: #3E6145; /* Xanh Lá Mộc */
+            --secondary-accent: #C65C33; /* Cam Cháy */
+            --chat-bg: #FFFFFF;
+            --border-color: rgba(43, 20, 8, 0.1);
+            --sidebar-width: 280px;
+        }
+
+        body {
+            font-family: 'Inter', 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 3-COLUMN LAYOUT */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .main-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--chat-bg);
+            border-right: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .social-hub {
+            width: 320px;
+            background-color: #F8F9FA;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            border-left: 1px solid var(--border-color);
+        }
+
+        /* SOCIAL HUB COMPONENTS */
+        .hub-header {
+            padding: 20px;
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hub-section {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .hub-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 800;
+            color: var(--secondary-accent);
+            margin-bottom: 15px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric-value {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: var(--primary-accent);
+        }
+
+        .skill-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            background: rgba(62, 97, 69, 0.1);
+            color: var(--primary-accent);
+            border-radius: 5px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .draft-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            border: 1px solid #eee;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .draft-item:hover { border-color: var(--secondary-accent); }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .status-online { background: #2ecc71; box-shadow: 0 0 5px #2ecc71; }
+        .status-active { background: #f1c40f; animation: pulse 1.5s infinite; }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        /* Action Cards in Chat */
+        .action-card {
+            background: white;
+            border: 1px solid var(--secondary-accent);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(198, 92, 51, 0.1);
+        }
+
+        .action-btn {
+            background: var(--secondary-accent);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        .brand-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .brand-header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            margin: 0 0 5px 0;
+            color: var(--bg-color);
+        }
+
+        .brand-header p {
+            margin: 0;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .departments {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .dept-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--secondary-accent);
+            margin-bottom: 10px;
+            margin-top: 20px;
+            font-weight: 700;
+        }
+        .dept-title:first-child { margin-top: 0; }
+
+        .agent-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            background-color: rgba(255,255,255,0.05);
+            transition: all 0.3s;
+            opacity: 0.5;
+            border-left: 3px solid transparent;
+        }
+
+        .agent-item.active {
+            opacity: 1;
+            background-color: rgba(62, 97, 69, 0.3); /* Xanh lá mộc */
+            border-left: 3px solid var(--primary-accent);
+            font-weight: 600;
+            box-shadow: inset 0 0 10px rgba(62, 97, 69, 0.5);
+        }
+
+        .agent-icon {
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+
+        /* MAIN CHAT AREA */
+        .main-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--chat-bg);
+            position: relative;
+        }
+
+        .chat-header {
+            padding: 15px 25px;
+            border-bottom: 1px solid var(--border-color);
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            z-index: 10;
+        }
+
+        .chat-header h2 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-color);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            scroll-behavior: smooth;
+        }
+
+        /* Message Styles */
+        .message {
+            display: flex;
+            gap: 15px;
+            opacity: 1;
+            animation: fadeIn 0.4s ease-out;
+            max-width: 90%;
+        }
+
+        .message.ceo {
+            flex-direction: row-reverse;
+            align-self: flex-end;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .message.ceo .avatar { background-color: var(--text-color); }
+        .avatar.agent-planner { background-color: #2c3e50; }
+        .avatar.agent-campaign-manager { background-color: #e67e22; }
+        .avatar.agent-copywriter { background-color: #8b5cf6; }
+        .avatar.agent-ui-ux-designer { background-color: #f1c40f; }
+        .avatar.agent-funnel { background-color: var(--primary-accent); }
+        .avatar.agent-upsell { background-color: var(--secondary-accent); }
+        .avatar.agent-social { background-color: #3b82f6; }
+        .avatar.agent-seo { background-color: #0ea5e9; }
+        .avatar.agent-researcher { background-color: #6366f1; }
+
+        .message-content {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 0 16px 16px 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            position: relative;
+        }
+
+        .message.ceo .message-content {
+            background-color: var(--primary-accent);
+            color: white;
+            border-radius: 16px 0 16px 16px;
+            border: none;
+        }
+
+        .sender {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .message.ceo .sender { border-bottom-color: rgba(255,255,255,0.2); }
+
+        .text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .highlight {
+            background-color: rgba(198, 92, 51, 0.15);
+            padding: 0 4px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+        
+        .message.ceo .highlight { background-color: rgba(255,255,255,0.2); }
+
+        /* INPUT AREA */
+        .chat-input-container {
+            padding: 20px 25px;
+            background: #fff;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 15px;
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            padding: 8px 15px;
+            border-radius: 30px;
+            align-items: center;
+        }
+
+        .input-wrapper input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 10px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-color);
+            outline: none;
+        }
+
+        .input-wrapper button {
+            background-color: var(--secondary-accent);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .input-wrapper button:hover {
+            background-color: #a84b27;
+        }
+
+        /* TYPING INDICATOR */
+        .typing-indicator {
+            display: none;
+            gap: 5px;
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            border-radius: 16px;
+            width: fit-content;
+            margin-left: 60px;
+            border: 1px solid var(--border-color);
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background-color: var(--text-color);
+            border-radius: 50%;
+            display: inline-block;
+            animation: bounce 1.4s infinite ease-in-out both;
+            opacity: 0.6;
+        }
+
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 6px;
+            height: 16px;
+            background-color: var(--secondary-accent);
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+            margin-left: 2px;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- BẢNG ĐIỀU KHIỂN BỘ PHẬN -->
+    <div class="sidebar">
+        <div class="brand-header">
+            <h1>CÀ PHÊ NHÂN TÂM</h1>
+            <p>CEO Orchestrator Dashboard</p>
+        </div>
+        <div class="departments" id="agent-list">
+            <!-- Render via JS -->
+        </div>
+    </div>
+
+    <!-- KHU VỰC HỌP -->
+    <div class="main-chat">
+        <div class="chat-header">
+            <h2>Phòng Khách Tự Động (AI Central Hub)</h2>
+        </div>
+        
+        <div class="chat-messages" id="chat-messages">
+            <div class="message" style="max-width: 100%;">
+                <div class="avatar agent-planner">🧠</div>
+                <div class="message-content">
+                    <div class="sender" style="color: #2c3e50">Planner (Trưởng dự án)</div>
+                    <div class="text">Chào sếp (CEO)! Hệ thống 31 Agents của Cà Phê Nhân Tâm đã vào vị trí. Sếp cứ gõ yêu cầu chiến dịch bên dưới, tôi sẽ tự động phân loại từ khóa (Keyword Routing) để **đánh thức đúng các phòng ban liên quan** tham gia tranh luận và lên phương án chiến lược nhất.</div>
+                </div>
+            </div>
+            
+            <!-- Typing Indicator -->
+            <div class="typing-indicator" id="typing-indicator">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+
+        <div class="chat-input-container">
+            <div class="input-wrapper">
+                <input type="text" id="user-input" placeholder="Ví dụ: Lên chiến dịch bán tặng mẫu 200g cho quán mới mở..." autofocus onkeypress="handleKeyPress(event)">
+                <button onclick="processCommand()">GIAO LỆNH</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SỞ CHỈ HUY MẠNG XÃ HỘI (SOCIAL HUB) -->
+    <div class="social-hub">
+        <div class="hub-header">
+            <h3 style="margin: 0; font-size: 1rem; font-family: 'Outfit';">Social Management</h3>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button onclick="fetchFacebookMetrics()" style="background: none; border: none; cursor: pointer; font-size: 0.8rem;" title="Làm mới dữ liệu">🔄</button>
+                <span class="status-dot status-online"></span>
+            </div>
+        </div>
+
+        <div class="hub-section">
+            <div class="hub-title">Facebook Page live</div>
+            <div class="metric-card">
+                <span style="font-size: 0.8rem; color: #666;">Reach (28d)</span>
+                <span class="metric-value">4.2k</span>
+            </div>
+            <div class="metric-card">
+                <span style="font-size: 0.8rem; color: #666;">Engagement</span>
+                <span class="metric-value">842</span>
+            </div>
+            <div class="metric-card">
+                <span style="font-size: 0.8rem; color: #666;">Followers</span>
+                <span class="metric-value">1,250</span>
+            </div>
+        </div>
+
+        <div class="hub-section">
+            <div class="hub-title">Internal Skills Active</div>
+            <div id="active-skills">
+                <span class="skill-badge">📱 Social Media</span>
+                <span class="skill-badge">✍️ Copywriting</span>
+                <span class="skill-badge">🧠 Psychology</span>
+                <span class="skill-badge">📈 Analytics</span>
+            </div>
+        </div>
+
+        <div class="hub-section">
+            <div class="hub-title">Content Workshop (Queue)</div>
+            <div id="content-queue">
+                <div class="draft-item">
+                    <div style="font-weight: 700; color: var(--secondary-accent);">[PENDING] Sài Gòn Bold Launch</div>
+                    <div style="font-size: 0.7rem; color: #888; margin-top: 4px;">Skill: Curiosity Hook applied</div>
+                </div>
+                <div class="draft-item">
+                    <div style="font-weight: 700;">[DRAFT] Wholesale Offer</div>
+                    <div style="font-size: 0.7rem; color: #888; margin-top: 4px;">Skill: Problem-Solution applied</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hub-section" style="border-bottom: none;">
+            <div class="hub-title">Status: Node Operations</div>
+            <div style="font-size: 0.75rem; color: #666; background: #eee; padding: 10px; border-radius: 6px;">
+                <code>API v24.1.0 Connection Secured. Ready for command execution.</code>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/dashboard-config.js"></script>
+    <script>
+        // KIẾN TRÚC NHÂN SỰ ĐẦY ĐỦ CHO F&B MARKETING 
+        const departments = [
+            {
+                title: "Điều Hành & Chiến Lược",
+                agents: [
+                    { id: 'planner', name: 'Planner (Trưởng dự án)', icon: '🧠' },
+                    { id: 'campaign-manager', name: 'Campaign Manager', icon: '📊' },
+                    { id: 'researcher', name: 'Researcher (Nghiên cứu)', icon: '🔍' }
+                ]
+            },
+            {
+                title: "Nội Dung & Sáng Tạo",
+                agents: [
+                    { id: 'copywriter', name: 'Copywriter (Viết lách)', icon: '✍️' },
+                    { id: 'social', name: 'Social Media Manager', icon: '📱' },
+                    { id: 'ui-ux-designer', name: 'UI/UX & Design', icon: '🎨' }
+                ]
+            },
+            {
+                title: "Chuyển Đổi & Bán Hàng",
+                agents: [
+                    { id: 'funnel', name: 'Funnel Architect', icon: '🌪️' },
+                    { id: 'upsell', name: 'Sale & Upsell', icon: '💰' }
+                ]
+            },
+            {
+                title: "Kỹ Thuật & SEO",
+                agents: [
+                    { id: 'seo', name: 'SEO & Web', icon: '📈' }
+                ]
+            }
+        ];
+
+        // RENDER DANH SÁCH AGENT RA SIDEBAR
+        const agentListDom = document.getElementById('agent-list');
+        departments.forEach(dept => {
+            let title = document.createElement('div');
+            title.className = 'dept-title';
+            title.innerText = dept.title;
+            agentListDom.appendChild(title);
+
+            dept.agents.forEach(agent => {
+                let item = document.createElement('div');
+                item.className = 'agent-item';
+                item.id = `ui-${agent.id}`;
+                item.innerHTML = `<span class="agent-icon">${agent.icon}</span> ${agent.name}`;
+                agentListDom.appendChild(item);
+            });
+        });
+
+        // BỘ LỌC TỪ KHÓA ĐỂ GỌI ĐÚNG AGENT (CLASSIFICATION)
+        const keywordRouting = [
+            { keys: ['chiến dịch', 'kế hoạch', 'bán', 'launching', 'tặng'], agents: ['campaign-manager'] },
+            { keys: ['thị trường', 'đối thủ', 'xu hướng', 'trend'], agents: ['researcher'] },
+            { keys: ['viết', 'nội dung', 'bài', 'content', 'thông điệp', 'chữ'], agents: ['copywriter'] },
+            { keys: ['hình', 'ảnh', 'video', 'thiết kế', 'banner', 'đẹp', 'màu'], agents: ['ui-ux-designer'] },
+            { keys: ['mạng xã hội', 'facebook', 'tiktok', 'zalo', 'fanpage'], agents: ['social'] },
+            { keys: ['giá', 'vốn', 'lời', 'lợi nhuận', 'sale', 'chốt', 'upsell', 'tiền'], agents: ['upsell'] },
+            { keys: ['phễu', 'chuyển đổi', 'form', 'hành trình', 'leads'], agents: ['funnel'] },
+            { keys: ['web', 'website', 'seo', 'google', 'từ khóa'], agents: ['seo'] }
+        ];
+
+        // MŨI NHỌN TRANH LUẬN ĐA CHIỀU (BẢN MÔ PHỎNG NÂNG CẤP V3 - ĐỘ SÂU CHIẾN LƯỢC)
+        // Hệ thống này sẽ lấy đầu vào của CEO và tạo ra các cuộc hội thoại mang tính con người, có phản biện, có dằn vặt về rủi ro.
+
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+        const chatContainer = document.getElementById('chat-messages');
+        const typingIndicator = document.getElementById('typing-indicator');
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') processCommand();
+        }
+
+        // Trích xuất ngữ cảnh từ câu lệnh của Sếp để đưa vào kịch bản
+        function extractContext(text) {
+            const lower = text.toLowerCase();
+            let subject = "chiến dịch cốt lõi hiện tại";
+            if(lower.includes('viết') || lower.includes('content')) subject = "tuyến nội dung truyền thông mới";
+            if(lower.includes('ads') || lower.includes('quảng cáo')) subject = "chiến dịch đổ ngân sách quảng cáo";
+            if(lower.includes('sỉ') || lower.includes('bán')) subject = "kế hoạch chốt sale sỉ";
+            if(lower.includes('xe đẩy') || lower.includes('quán')) subject = "phễu tiếp cận chủ xe đẩy/ki-ốt";
+            if(lower.includes('facebook') || lower.includes('fanpage') || lower.includes('đăng')) subject = "vận hành Facebook Automation";
+            return subject;
+        }
+
+        function renderActionCard(agentId, title, content, buttons) {
+            const card = document.createElement('div');
+            card.className = 'action-card';
+            
+            let buttonHtml = buttons.map(btn => `<button class="action-btn" onclick="${btn.action}">${btn.text}</button>`).join('');
+            
+            card.innerHTML = `
+                <div style="font-weight: 800; color: var(--secondary-accent); font-size: 0.8rem; margin-bottom: 5px; text-transform: uppercase;">[${title}]</div>
+                <div style="font-size: 0.9rem; line-height: 1.5; color: #444;">${content}</div>
+                <div class="actions">${buttonHtml}</div>
+            `;
+            
+            return card;
+        }
+
+        window.approvePost = async function() {
+            if (!window.DASHBOARD_CONFIG?.facebook?.live) {
+                alert('Hệ thống đang ở chế độ MOCK (Chưa có Token). Hành động "Đăng bài" chỉ là mô phỏng.');
+                return;
+            }
+            alert('🚀 Đang thực thi đẩy bài lên Facebook thật... Đang gọi facebook-connector.js');
+            // Gọi logic API thật ở đây nếu cần
+        }
+
+        async function fetchFacebookMetrics() {
+            const config = window.DASHBOARD_CONFIG?.facebook;
+            const statusEl = document.querySelector('.social-hub .status-dot');
+            const statusTextEl = document.querySelector('.social-hub h3');
+            
+            if (!config || !config.live) {
+                console.warn('Facebook Connector is in MOCK mode.');
+                statusEl.className = 'status-dot status-active'; // Pulse indicating mock/not-ready
+                statusTextEl.innerText = 'Social (MOCK MODE)';
+                return;
+            }
+
+            statusTextEl.innerText = 'Social (LIVE)';
+            statusEl.className = 'status-dot status-online';
+
+            try {
+                const metrics = 'page_impressions_unique,page_post_engagements,page_fans';
+                const url = `https://graph.facebook.com/v24.0/${config.pageId}/insights?metric=${metrics}&period=day&access_token=${config.accessToken}`;
+                
+                const response = await fetch(url);
+                const result = await response.json();
+                
+                if (result.data) {
+                    // Cập nhật UI với số liệu thật
+                    const cards = document.querySelectorAll('.social-hub .metric-value');
+                    // Logic mapping số liệu nạp vào card
+                    cards[0].innerText = result.data.find(m => m.name === 'page_impressions_unique')?.values[0]?.value || 'N/A';
+                    cards[1].innerText = result.data.find(m => m.name === 'page_post_engagements')?.values[0]?.value || 'N/A';
+                    // Số followers (fans) thường lấy từ /{pageId} fields=fan_count
+                }
+            } catch (error) {
+                console.error('FB API Error:', error);
+            }
+        }
+
+        // Tự động chạy khi load
+        window.addEventListener('load', fetchFacebookMetrics);
+
+        async function processCommand() {
+            const inputEl = document.getElementById('user-input');
+            const rawText = inputEl.value.trim();
+            if (!rawText) return;
+
+            inputEl.value = '';
+            renderMessage('ceo', 'CEO (Bạn)', rawText, '#C65C33');
+            
+            const lowerText = rawText.toLowerCase();
+            const activeIds = ['planner']; 
+            
+            // Skill Badge Activation Logic
+            const skillMap = {
+                'facebook': ['social'],
+                'nội dung': ['copywriter'],
+                'bán': ['upsell'],
+                'giá': ['upsell', 'planner'],
+                'bình luận': ['social', 'upsell'],
+                'comment': ['social', 'upsell']
+            };
+
+            keywordRouting.forEach(rule => {
+                if (rule.keys.some(k => lowerText.includes(k))) {
+                    rule.agents.forEach(a => { if(!activeIds.includes(a)) activeIds.push(a); });
+                }
+            });
+
+            // Nếu câu quá ngắn, tự thêm Funnel và Copywriter để tranh luận
+            if (activeIds.length < 3) {
+                activeIds.push('copywriter', 'upsell'); 
+            }
+            const uniqueActive = [...new Set(activeIds)];
+
+            // Tắt báo sáng và bật những agent tương ứng
+            document.querySelectorAll('.agent-item').forEach(el => el.classList.remove('active'));
+            uniqueActive.forEach(id => {
+                const el = document.getElementById(`ui-${id}`);
+                if(el) el.classList.add('active');
+            });
+
+            // Activate Skill Badges based on keywords
+            document.querySelectorAll('.skill-badge').forEach(b => b.classList.remove('status-active'));
+            if(lowerText.includes('giá') || lowerText.includes('bán') || lowerText.includes('bình luận')) {
+                document.querySelectorAll('.skill-badge').forEach(b => {
+                    if(b.innerText.includes('Psychology') || b.innerText.includes('Social')) b.classList.add('status-active');
+                });
+            }
+
+            const subject = extractContext(rawText);
+
+            // Mở màn
+            await simulateTyping('planner', 'Planner (Trưởng dự án)', 
+                `Ghi nhận định hướng từ Sếp về **"${rawText}"**.\n\nNhìn vào bản chất, chúng ta đang can thiệp vào ${subject}. Đây là bài toán khó vì tệp F&B hiện tại đang rất e dè việc đổi nguồn nguyên liệu. Đã gọi đúng các phòng ban cốt cán. Yêu cầu các bộ phận không đồng ý một cách sáo rỗng. Hãy vạch trần điểm yếu trong ý tưởng nếu có và đưa ra giải pháp bảo vệ lợi nhuận cao nhất cho Nhân Tâm.`);
+
+            // Debate logic: Phải có 1 người đề xuất, 1 người phản bác, 1 người trung hòa
+            const firstAgent = uniqueActive[1];
+            const secondAgent = uniqueActive[2];
+            const thirdAgent = uniqueActive[3]; // Có thể undefined
+
+            if (firstAgent) {
+                let text1 = generateDebateStatement1(firstAgent, subject, rawText);
+                await simulateTyping(firstAgent, getAgentInfo(firstAgent).name, text1);
+            }
+
+            if (secondAgent) {
+                let text2 = generateDebateStatement2(secondAgent, firstAgent, subject);
+                await simulateTyping(secondAgent, getAgentInfo(secondAgent).name, text2);
+            }
+
+            if (thirdAgent) {
+                let text3 = generateDebateStatement3(thirdAgent, subject);
+                await simulateTyping(thirdAgent, getAgentInfo(thirdAgent).name, text3);
+            }
+
+            // Chốt
+            await simulateTyping('planner', 'Planner (Trưởng dự án)', 
+                "Tôi đã chắt lọc lại toàn bộ các luồng góc nhìn. Sự phản biện của các bộ phận là cực kỳ sắc bén.\n\n<span class='highlight'>Chiến lược cuối cùng:</span> Chúng ta sẽ đi theo hướng kết hợp phễu lọc rủi ro của Sale và ngôn từ thấu cảm của Content. Quyết định không làm đại trà mà đánh vào sự chân thực, mộc mạc nhất có thể.");
+            
+            if (activeIds.includes('social') && (lowerText.includes('bình luận') || lowerText.includes('comment'))) {
+                const card = renderActionCard('social', 'Comment Response Suggestion', 
+                    "Có khách hàng vừa comment chê **'Giá cao'**. Tôi đã truy xuất **Skill: Sales Objection Handling** để soạn câu trả lời đối soát theo triết lý 'The Accountant's Shift'. \n\n**Response:** 'Chào anh/chị, Nhân Tâm hiểu anh đang so sánh giá ký. Tuy nhiên hạt mộc CPNT pha được 55-60 ly, tối ưu giá vốn/ly hơn hẳn hạt rẻ tiền ạ...'",
+                    [{text: 'Duyệt & Trả lời', action: 'alert("Đã trả lời bình luận thành công!")'}, {text: 'Tư vấn thêm sỉ', action: 'alert("Đã chuyển task cho đội Sales chốt đơn sỉ...")'}]
+                );
+                chatContainer.insertBefore(card, typingIndicator);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            } else if (activeIds.includes('social')) {
+                const card = renderActionCard('social', 'Post Proposal v1.0', 
+                    "Sếp ơi, tôi đã thảo xong bài đăng Facebook dựa trên **Skill: Hook Writing**. \n\n**Hook:** [Curiosity Gap] 'Bí mật đằng sau túi cà phê 220k...' \n**Asset:** Video Sài Gòn Bold (HQ). \n\nSếp nhấn nút để tôi đẩy automation lên Page luôn nhé!",
+                    [{text: 'Duyệt & Đăng bài', action: 'approvePost()'}, {text: 'Sửa Caption', action: 'alert("Đã gửi yêu cầu cho Copywriter...")'}]
+                );
+                chatContainer.insertBefore(card, typingIndicator);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+            
+            await simulateTyping('planner', 'Planner (Trưởng dự án)', 
+                "Đội kỹ thuật/design bắt tay vào tạo file thiết kế ngay lập tức. Sếp có thấy bức tranh này đủ độ sâu và sẵn sàng ký lệnh duyệt chưa?");
+        }
+
+        // BỘ NÃO TẠO VĂN BẢN ĐỘNG (Dynamic Text Generation) 
+        function generateDebateStatement1(role, subject, rawText) {
+            const templates = {
+                'social': `Đã truy xuất **Skill: Facebook Workflow** & **Brand Identity**. \n\nĐối với "${rawText}", tôi sẽ không đăng bài kiểu phổ thông. \n\nTôi vừa phối hợp với Copywriter để áp dụng **Formulas: Curiosity Hook** (Khoảng trống tò mò). Chúng ta sẽ show một tấm ảnh kho hàng đang đóng gói cho sỉ, kèm Caption: "Tại sao 90% quán cafe tại Sài Gòn đang nhập hàng sai giá?". Điều này đánh thẳng vào tâm lý 'Loss Aversion' của khách hàng.`,
+                'funnel': `Kể cả ý tưởng của sếp về "${rawText}" rất hay, nhưng nếu không hứng traffic vào đúng cái rổ thì tiền tan thành nước. Chủ quán cà phê họ lười lắm. \n\nĐề xuất của tôi: Cắt hết Landing Page rườm rà. Tôi thiết kế luồng Zalo Mini-app: Khách thấy ${subject} -> Bấm phát Zalo tự kéo số điện thoại luôn. Cuộc chiến này, ai nắm được số Zalo của chủ quán sớm nhất thì người đó thắng vòng 1.`,
+                'copywriter': `Đứng từ góc độ thấu hiểu khách hàng, tôi thấy ta đang bỏ quên một thứ: "Cái tôi" của người khởi nghiệp rấy lớn. \n\nĐừng viết kiểu dạy đời họ. Đối với ${subject}, tôi sẽ lên Key Message: "Đồng hành cùng gu riêng của quán bạn". Rõ ràng sự tùy biến (Mix & Match) là vũ khí lớn nhất của chúng ta. Tôi sẽ soạn bản nháp góc nhìn này ngay chiều nay.`,
+                'upsell': `Đã áp dụng **Skill: SME Business Strategy**. Quan điểm của Sale với ${subject} rất rắn: Đừng bao giờ chiều khách vô điều kiện. Cứ giảm giá hay tặng miễn phí, tệp "ráy" (khách săn đồ miễn phí) sẽ bu vào làm kiệt quệ kho.\n\nCho dù Sếp muốn mở rộng phễu, tôi vẫn yêu cầu cài cắm 1 bộ lọc phí (Ví dụ thu đúng 30k tiền ship). 30k không làm giàu cho chúng ta, nhưng bảo vệ đội Telesale khỏi tình trạng gãy lưỡi với những người không có ý định mua.`,
+                'campaign-manager': `Với ${subject}, tôi xin phép nhìn thẳng vào con số. Ngân sách đang là khoảng hở lớn ở đây. Thay vì rải đều tiền, tôi muốn đập 80% vốn vào 2 quận trung tâm nơi mật độ xe đẩy dày đặc nhất.\n\nKPI của tôi: Cost per Lead phải dưới 45.000đ. Nếu vượt quá, tôi sẽ dập chiến dịch ngay để điều chỉnh, không gồng lỗ.`
+            };
+            return templates[role] || `Từ phía của tôi đối với ${subject}, chúng ta phải làm một cách bài bản nhất, không vội được.`;
+        }
+
+        function generateDebateStatement2(role, targetRole, subject) {
+            const targetName = getAgentInfo(targetRole).name.split(' ')[0];
+            const templates = {
+                'copywriter': `Tôi hiểu ý của ${targetName}, nhưng tôi xin phép được phản bác.\n\nNếu chúng ta làm quá khắt khe như vậy, luồng cảm xúc trơn tru của ${subject} sẽ bị gãy vỡ trầm trọng. Tôi không muốn một cái thông điệp khô khan như cỗ máy. \n\nSự "Mộc mạc" không đồng nghĩa với sự lạnh lùng. Chúng ta có thể dùng từ ngữ "Gia đình Nhân Tâm", "Người anh em xe đẩy" để xoa dịu đi cái màng lọc đó. Khách trả tiền nhưng vẫn thấy sướng.`,
+                'ui-ux-designer': `Đang nghe ý kiến của ${targetName}, tôi thấy bất ổn ở khâu nhìn nhận khách hàng.\n\nAnh/chị nói thì dễ, nhưng khi chạy ${subject}, rào cản UI sẽ cản bước họ. Chủ quán thường tay đang dính dơ, màn hình điện thoại mờ, họ cực kỳ ghét bấm nhiều bước. \n\nGiới hạn lại đi! Thiết kế chỉ duy nhất 2 màu Nâu và Vàng Kem. Call to Action (Nút bấm) phải to gấp 2 lần bình thường. Cầm tay chỉ việc bằng màu sắc mới ăn thua.`,
+                'upsell': `Tôi nói thẳng là ${targetName} đang quá mộng mơ. Doanh thu nuôi cả xưởng chứ view hay content hay không nuôi sống Nhân Tâm được.\n\nCứ vẽ ${subject} thành câu chuyện đẹp đi, cuối cùng nếu tỷ lệ tái đặt (Retention rate) dưới 30% thì là thất bại chiến lược. Tôi yêu cầu sau chiến dịch phải thọc sâu quyền chăm sóc lại cho đội Sale. Bán thêm được gói 5kg mới lấy hòa vốn cho chiến dịch này.`,
+                'seo': `Nhìn cách ${targetName} định hình phễu, tôi thấy các bạn đang phụ thuộc 100% vào quảng cáo trả phí. Nếu Mark Zuckerberg đổi thuật toán thì chúng ta tắt thở sao?\n\nĐể tôi chêm vào chiến lược này một hệ thống bài viết mồi trên mạng nhện SEO. Tôi cào sạch từ khoá "nguồn sỉ cà phê" tại TP.HCM. Nó như mạch nước ngầm đem khách về miễn phí cho chúng ta từ nay về sau.`,
+                'social': `Khá đồng quan điểm với ${targetName}, nhưng bổ sung thêm tính lan truyền. Nếu ta chạy ${subject} một cách khô khan, họ mua 1 lần rồi đi.\n\nBí quyết ở đây là bắt họ phải 'Tự hào' khi bán hạt Nhân Tâm. Thử thách của tôi là làm sao để chủ quán xe đẩy phải Cầm bao bì của ta lên quay TikTok khoe khách của họ: "Bên em nấu hạt nguyên chất từ xưởng này". Đó mới là Marketing đỉnh cao.`
+            };
+            return templates[role] || `Tôi phản đối một phần ý tưởng của ${targetName}. Khi nhìn vào ${subject}, rủi ro thực thi vẫn rất lớn ở khâu trải nghiệm.`;
+        }
+
+        function generateDebateStatement3(role, subject) {
+            const templates = {
+                'researcher': `Nếu các anh chị hạ hỏa lại và nhìn vào số liệu tôi vừa cào về từ thị trường 2 tuần nay: Đối thủ lớn nhất của chúng ta đang gặp khủng hoảng về MOQ (tối thiểu đặt hàng).\n\nDo đó ý tưởng về ${subject} này rơi đúng điểm huyệt. Đây không còn là chuyện đẹp hay xấu, đây là cơ hội đoạt thị phần. Tôi ủng hộ việc đánh nhanh thắng nhanh trong tuần tới.`,
+                'campaign-manager': `Để dĩ hòa vi quý, tôi sẽ cấp ngân sách A/B testing.\n\nChia ${subject} thành 2 biến thể: Một cái đi theo hướng cứng rắn của đội chốt Sale, một cái đi theo hướng cảm xúc của phòng Content. Chạy mỗi test 1 triệu đồng. Số liệu thực tế trong 48h sẽ trả lời phương án nào là kim chỉ nam. Data không bao giờ nói dối.`,
+                'funnel': `Kết nối mọi điểm chạm lại: Content viết mồi -> Design kích thích thị giác -> Sale tạo màng lọc rủi ro -> Hệ thống đo lường chặn rò rỉ.\n\nTôi vừa phác thảo luồng phễu trên Miro, hệ thống sẽ chặn đứng tình trạng văng rác 80%. Tôi nghĩ chúng ta đã có một luồng cực kỳ sắc nét.`,
+                'copywriter': `Ok, chốt góc nhìn. Khi mọi thứ hội tụ chung một điểm, tôi sẽ chịu rủi ro bọc lại lớp vỏ bọc ngôn từ. Tôi sẽ vuốt tất cả những quy trình cứng ngắc kia thành một thông điệp như lời tâm tình của một người anh em ngành F&B thực sự.`
+            };
+            return templates[role] || `Tôi tổng hòa lại, chiến lược về ${subject} cơ bản đã được bịt kín các đường hụt. Tôi sẵn sàng thực thi hệ thống kịch bản.`;
+        }
+
+        function getAgentInfo(id) {
+            for(let dept of departments) {
+                let found = dept.agents.find(a => a.id === id);
+                if(found) return found;
+            }
+            return { id: id, name: id, icon: '🤖' };
+        }
+
+        function renderMessage(role, name, text, color) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${role === 'ceo' ? 'ceo' : ''}`;
+            
+            let icon = '👨‍💼';
+            let roleClass = role;
+            if(role !== 'ceo') {
+                icon = getAgentInfo(role).icon;
+                roleClass = `agent-${role}`;
+            }
+
+            msgDiv.innerHTML = `
+                <div class="avatar ${roleClass}">${icon}</div>
+                <div class="message-content">
+                    <div class="sender" ${color ? `style="color:${color}"` : ''}>${name}</div>
+                    <div class="text">${text}</div>
+                </div>
+            `;
+            
+            chatContainer.insertBefore(msgDiv, typingIndicator);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            return msgDiv;
+        }
+
+        async function simulateTyping(role, name, fullText) {
+            // Show typing info
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            typingIndicator.style.display = 'flex';
+            
+            // Nghĩ từ 1 - 2 giây
+            await sleep(1000 + Math.random() * 1000);
+            
+            typingIndicator.style.display = 'none';
+
+            // Tạo khung rỗng
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message`;
+            
+            let icon = getAgentInfo(role).icon;
+            
+            msgDiv.innerHTML = `
+                <div class="avatar agent-${role}">${icon}</div>
+                <div class="message-content">
+                    <div class="sender">${name}</div>
+                    <div class="text"><span class="cursor"></span></div>
+                </div>
+            `;
+            
+            chatContainer.insertBefore(msgDiv, typingIndicator);
+            const textDisplay = msgDiv.querySelector('.text');
+            const cursor = textDisplay.querySelector('.cursor');
+
+            let i = 0;
+            let inTag = false;
+            let tagContent = '';
+
+            while (i < fullText.length) {
+                if (fullText[i] === '<') {
+                    inTag = true;
+                    tagContent = '<';
+                } else if (fullText[i] === '>') {
+                    inTag = false;
+                    tagContent += '>';
+                    cursor.insertAdjacentHTML('beforebegin', tagContent);
+                    tagContent = '';
+                } else {
+                    if (inTag) {
+                        tagContent += fullText[i];
+                    } else {
+                        cursor.insertAdjacentText('beforebegin', fullText[i]);
+                        await sleep(10); // Tốc độ gõ 
+                    }
+                }
+                i++;
+                if (i % 5 === 0) chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+            cursor.remove();
+            await sleep(500); // Ngưng nhẹ sau khi gõ xong
+        }
+    </script>
+</body>
+</html>

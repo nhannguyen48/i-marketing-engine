@@ -1,0 +1,32 @@
+{
+  "brand_name": "Cà Phê Nhân Tâm",
+  "project_id": "nhan-tam",
+  "business_model": "Đóng gói và Phân phối cà phê rang mộc cao cấp",
+  "product": "Hạt cà phê rang mộc Sài Gòn Bold",
+  "slogan": "Đậm đà bản sắc, trọn vẹn niềm tin",
+  "logo_path": "assets/logos/official_logo_square.png",
+  "logo_horizontal_path": "assets/logos/official_logo_horizontal.png",
+  "logo_transparent_path": "assets/logos/official_logo_square_transparent.png",
+  "website": "caphenhantam.com",
+  "hotline": "038.439.6838",
+  "vo_voice_id": "vi-VN-Neural2-D",
+  "bgm_style": "Professional Corporate Modern Distribution Success",
+  "tvc_script": "Bạn đang tìm nguồn cung cấp hạt cà phê ổn định cho chuỗi xe đẩy hay kiosk của mình? Đừng để lợi nhuận bị bào mòn bởi các đầu mối trung gian kém chất lượng. Tại Cà Phê Nhân Tâm, chúng tôi tập trung tối ưu khâu tuyển chọn, đóng gói và phân phối trực tiếp hạt cà phê rang mộc chuẩn gu Sài Gòn. Mỗi mẻ hạt Sài Gòn Bold đều được chúng tôi kiểm soát chất lượng khắt khe ngay tại kho đóng gói, đảm bảo lớp crema dày mịn, hương vị đậm đà và đặc biệt không bao giờ vỡ phom đá. Nhân Tâm mang đến giải pháp tối ưu giá vốn: Lấy hàng trực tiếp từ hệ thống phân phối, không qua trung gian. Chỉ cần mua một ký, chúng tôi tính ngay giá sỉ cho lô lẻ đầu tiên. Đây chính là điểm tựa vận hành bền vững cho quán của bạn. Truy cập cà phê nhân tâm chấm com hoặc hotline không ba tám, bốn ba chín, sáu tám ba tám để nhận tư vấn ngay hôm nay. Cà Phê Nhân Tâm – Đậm đà bản sắc, trọn vẹn niềm tin.",
+  "social_media": {
+    "facebook": {
+      "page_id": "REPLACE_WITH_PAGE_ID",
+      "access_token": "REPLACE_WITH_PAGE_ACCESS_TOKEN",
+      "status": "Inactive"
+    },
+    "tiktok": {
+      "account_id": "REPLACE_WITH_TIKTOK_ID",
+      "access_token": "",
+      "status": "Planning"
+    },
+    "zalo": {
+      "oa_id": "REPLACE_WITH_ZALO_OA_ID",
+      "access_token": "",
+      "status": "Planning"
+    }
+  }
+}

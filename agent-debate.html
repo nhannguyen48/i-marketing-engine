@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClaudeKit - Strategic AI Meeting: Cà Phê Nhân Tâm</title>
+    <style>
+        :root {
+            --bg-color: #FDF8ED; /* Vàng Nhạt Crema */
+            --text-color: #2B1408; /* Nâu Đậm Dark Roast */
+            --primary-accent: #3E6145; /* Xanh Lá Mộc */
+            --secondary-accent: #C65C33; /* Cam Cháy */
+            --chat-bg: #FFFFFF;
+            --border-color: rgba(43, 20, 8, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 800px;
+            height: 90vh;
+            background-color: var(--chat-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(43, 20, 8, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .chat-header {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            font-family: 'Outfit', sans-serif;
+        }
+        
+        .status {
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary-accent);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 5px var(--primary-accent);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; box-shadow: 0 0 8px var(--primary-accent); }
+            100% { opacity: 0.5; }
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            display: flex;
+            gap: 15px;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background-color: var(--secondary-accent);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .avatar.planner { background-color: var(--text-color); }
+        .avatar.funnel { background-color: var(--primary-accent); }
+        .avatar.social { background-color: #3b82f6; }
+        .avatar.sales { background-color: var(--secondary-accent); }
+        .avatar.copywriter { background-color: #8b5cf6; }
+
+        .message-content {
+            background-color: #f8f9fa;
+            padding: 12px 18px;
+            border-radius: 0 12px 12px 12px;
+            border: 1px solid var(--border-color);
+            max-width: 85%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .sender {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            color: var(--secondary-accent);
+        }
+        
+        .sender.planner { color: var(--text-color); }
+        .sender.funnel { color: var(--primary-accent); }
+        .sender.social { color: #3b82f6; }
+        .sender.copywriter { color: #8b5cf6; }
+
+        .text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text-color);
+            white-space: pre-wrap;
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: none;
+            gap: 4px;
+            padding: 12px 18px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            width: fit-content;
+            margin-left: 55px; /* avatar width + gap */
+            margin-bottom: 20px;
+        }
+
+        .typing-indicator span {
+            width: 6px;
+            height: 6px;
+            background-color: #aaa;
+            border-radius: 50%;
+            display: inline-block;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        .highlight {
+            background-color: rgba(198, 92, 51, 0.15); /* Cam Cháy nhạt */
+            padding: 0 4px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+        
+        .cursor {
+            display: inline-block;
+            width: 6px;
+            height: 16px;
+            background-color: var(--secondary-accent);
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+            margin-left: 2px;
+        }
+        
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>🧠 Strategic Debate Room: Campaign "Sài Gòn Bold"</h1>
+            <div class="status"><span class="status-dot"></span> Agents Active</div>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <!-- Messages will be injected here -->
+            <div class="typing-indicator" id="typing-indicator">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cuộc tranh luận mang tính chiến lược và đa chiều
+        const conversation = [
+            {
+                role: 'planner',
+                name: 'Planner Agent (Chủ toạ)',
+                text: "Chào đội ngũ. Chúng ta chốt chiến lược Launching tháng này cho Cà Phê Nhân Tâm.\n\nMục tiêu: Thu thập 200 Leads (số điện thoại) là chủ xe đẩy/kiosk F&B ở nội thành Sài Gòn. \nHướng tiếp cận: Tặng mẫu thử 200g dòn hạt Sài Gòn Bold.\n\nMọi người cho phản biện và đóng góp chiến lược triển khai tốt nhất."
+            },
+            {
+                role: 'funnel',
+                name: 'Funnel Architect',
+                text: "Đứng ở góc độ cấu trúc phễu, tôi e ngại việc dẫn thẳng quảng cáo về Landing Page điền form. Chủ xe đẩy đang rất ngại khai form (họ sợ bị spam). \n\n<span class='highlight'>Đề xuất chiến lược:</span> Chạy Quảng Cáo dồn thẳng vào Inbox Zalo OA. Cài đặt kịch bản Chatbot tự động: Khách nhấp vào Ads ➔ Zalo OA chào ➔ tự động hiển thị nút bấm 'Nhận Mẫu Thử' ➔ thu thập SĐT ngay trong Zalo. Lợi thế là ta trói khách vào Zalo để tiện chăm sóc bán sỉ lâu dài."
+            },
+            {
+                role: 'social',
+                name: 'Social Media Manager',
+                text: "Chiến thuật của Funnel rất ổn. Tuy nhiên, nhìn vào Target Audience, tôi muốn cảnh báo lỗ hổng chiến lược: Nếu chúng ta giật tít 'TẶNG MIỄN PHÍ', Ads sẽ nổ liên tục nhưng thu về toàn 'Free-Hunters' (tệp khách vãng lai chuyên săn đồ miễn phí), không phải là tay pha chế hay chủ xe đẩy F&B thật sự. \n\nĐiều này phá hủy ngân sách Facebook Ads và làm tổ CSKH kiệt sức chặn số rác."
+            },
+            {
+                role: 'sales',
+                name: 'Upsell Maximizer (Sales Lead)',
+                text: "<span class='highlight'>Chính xác! Cần một 'Màng Lọc Áp Lực'.</span>\n\nGóc nhìn của Sales: Không bao giờ cho miễn phí hoàn toàn. Nếu muốn tách chủ quán xịn ra khỏi tệp săn free, chúng ta để giá cà phê 0 đồng, nhưng khách phải tự trả 30.000đ tiền phí ship nội thành.\n\nLý do:\n1. 30k loại bỏ triệt để 100% tệp săn đồ miễn phí.\n2. Chủ xe đẩy thực sự khát cốt cà phê tốt sẽ KHÔNG BAO GIỜ tiếc 30k để đổi lấy 200g hàng chất lượng thử máy.\n\nĐó là bước 'Micro-Commitment' (Cam kết nhỏ) trước khi lấy sỉ."
+            },
+            {
+                role: 'copywriter',
+                name: 'Copywriter Agent',
+                text: "Tuyệt vời. Góc nhìn màng lọc của Sales thực sự bén rễ vào tâm lý hành vi.\n\nTôi sẽ điều chỉnh ngay Hook bài viết để đánh thẳng vào sự minh bạch (hợp Brand Guidelines của Nhân Tâm):\n\n\"Lấy hạt giá xưởng - Không qua trung gian. Tặng 200g test cốt máy ép miễn phí - Xưởng chỉ xin 30k phí ship nội thành để giao hỏa tốc đến quán của bạn.\"\n\nSự thẳng thắn này cực kỳ hợp với Tone 'Mộc mạc, Tử tế' của chúng ta."
+            },
+            {
+                role: 'planner',
+                name: 'Planner Agent (Chủ toạ)',
+                text: "<span class='highlight'>Thống nhất chiến lược:</span>\n1. Kênh: Facebook Ads đổ Zalo OA.\n2. Lọc khách: 0 Đồng tiền cà phê + 30k phí vận chuyển.\n3. Content: Thẳng thắn, minh bạch, đánh vào bài toán ly cafe 15k.\n\nTất cả Agent tiến hành xuất file và lên luồng theo chiến lược phân kỳ. Cà Phê Nhân Tâm tiến lên!"
+            }
+        ];
+
+        const chatContainer = document.getElementById('chat-messages');
+        const typingIndicator = document.getElementById('typing-indicator');
+
+        // Hàm helper để tạo thẻ tin nhắn nhưng chưa điền text (sẽ gõ chữ vào)
+        function createMessageElement(msgObj) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message';
+            
+            const avatar = document.createElement('div');
+            avatar.className = `avatar ${msgObj.role}`;
+            avatar.textContent = msgObj.name.substring(0, 1);
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            const sender = document.createElement('div');
+            sender.className = `sender ${msgObj.role}`;
+            sender.textContent = msgObj.name;
+            
+            const textDisplay = document.createElement('div');
+            textDisplay.className = 'text';
+            // Sẽ type nội dung vào đây
+            
+            contentDiv.appendChild(sender);
+            contentDiv.appendChild(textDisplay);
+            
+            msgDiv.appendChild(avatar);
+            msgDiv.appendChild(contentDiv);
+            
+            return { msgDiv, textDisplay };
+        }
+
+        // Delay helper
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+        // Hàm giả lập gõ chữ bao gồm cả HTML tags
+        async function typeHtml(htmlString, element) {
+            let i = 0;
+            let inTag = false;
+            let tagContent = '';
+            
+            // Xoá nội dung trước khi gõ
+            element.innerHTML = '<span class="cursor"></span>';
+            const cursor = element.querySelector('.cursor');
+
+            while (i < htmlString.length) {
+                if (htmlString[i] === '<') {
+                    inTag = true;
+                    tagContent = '<';
+                } else if (htmlString[i] === '>') {
+                    inTag = false;
+                    tagContent += '>';
+                    // Thêm toàn bộ tag mà không type (để render HTML đúng)
+                    cursor.insertAdjacentHTML('beforebegin', tagContent);
+                    tagContent = '';
+                } else {
+                    if (inTag) {
+                        tagContent += htmlString[i];
+                    } else {
+                        // Type chữ nhanh
+                        cursor.insertAdjacentText('beforebegin', htmlString[i]);
+                        await sleep(15); // tốc độ gõ (15ms mỗi ký tự = rất nhanh)
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }
+                }
+                i++;
+            }
+            cursor.remove(); // Gõ xong thì bỏ con chuột nhấp nháy
+        }
+
+        async function orchestrateMeeting() {
+            await sleep(1000); // Đợi 1 giây bắt đầu
+
+            for (let i = 0; i < conversation.length; i++) {
+                const msg = conversation[i];
+                
+                // Trượt xuống show typing
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                typingIndicator.style.display = 'flex';
+                
+                // Giả lập thời gian suy nghĩ của AI (1.5 - 2.5 giây)
+                const thinkTime = 1500 + Math.random() * 1000;
+                await sleep(thinkTime);
+                
+                typingIndicator.style.display = 'none';
+
+                // Render element
+                const { msgDiv, textDisplay } = createMessageElement(msg);
+                chatContainer.insertBefore(msgDiv, typingIndicator);
+                
+                // Play typing animation
+                await typeHtml(msg.text, textDisplay);
+                
+                // Tạm nghỉ giữa các lần nói
+                await sleep(800);
+            }
+        }
+
+        // Bắt đầu ứng dụng
+        window.onload = orchestrateMeeting;
+    </script>
+</body>
+</html>
