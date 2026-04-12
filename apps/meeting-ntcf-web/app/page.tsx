@@ -422,7 +422,11 @@ export default function MeetingPage() {
     if (textareaRef.current) { textareaRef.current.style.height = 'auto'; textareaRef.current.blur(); }
 
     const approval = detectApproval(task);
-    const history: Message[] = [...messages, { role: 'user', content: task }];
+    // Filter out empty/whitespace assistant messages before building history.
+    // These accumulate when a previous stream fails mid-flight and would cause
+    // Anthropic to return 400 ("message content must be non-empty").
+    const cleanHistory = messages.filter(m => m.content.trim().length > 0);
+    const history: Message[] = [...cleanHistory, { role: 'user', content: task }];
     setMessages([...history, { role: 'assistant', content: '' }]);
     setIsStreaming(true);
     startTypewriter();
@@ -459,12 +463,17 @@ export default function MeetingPage() {
         }
         if (approval) runExecution(approval);
       };
-    } catch {
+    } catch (err: unknown) {
       stopTypewriter();
       setIsStreaming(false);
+      const detail = (err instanceof Error ? err.message : String(err)).toLowerCase();
+      const isBilling = /credit|billing|quota|overload|insufficient/i.test(detail);
+      const errMsg = isBilling
+        ? '[THƯƠNG — PA]: ❌ API hết credits. Sếp Nhân vui lòng nạp thêm tiền vào tài khoản Anthropic rồi thử lại.'
+        : '[THƯƠNG — PA]: ❌ Có lỗi kết nối. Vui lòng thử lại.';
       setMessages(prev => [
         ...prev.slice(0, -1),
-        { role: 'assistant', content: '[THƯƠNG — PA]: ❌ Có lỗi kết nối. Vui lòng thử lại.' },
+        { role: 'assistant', content: errMsg },
       ]);
     }
   }

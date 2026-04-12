@@ -88,3 +88,4 @@ videos/*/node_modules
 clever-grid-*.json
 gcp-key.json
 .env*
+brands/*/brand-identity.json

@@ -14,8 +14,8 @@
 | **Năm thành lập** | (cập nhật sau) |
 | **Thị trường trọng tâm** | TP. Hồ Chí Minh |
 | **Mô hình kinh doanh** | B2B – Cung ứng nguyên liệu hạt rang cho quán cà phê, xe đẩy, kiosk |
-| **Website** | (cập nhật sau) |
-| **Fanpage** | (cập nhật sau) |
+| **Website** | [caphenhantam.com](https://caphenhantam.com) |
+| **Fanpage** | [Facebook.com/110245204765577](https://www.facebook.com/110245204765577) |
 
 ---
 

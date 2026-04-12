@@ -25,20 +25,42 @@ export async function POST(req: Request) {
     return new Response('Thiếu messages.', { status: 400 });
   }
 
+  // Sanitise: Anthropic returns 400 if any message has empty/whitespace-only content.
+  // This can happen when a previous stream failed mid-flight and left an empty assistant turn.
+  const cleanMessages = messages
+    .filter(m => m.content.trim().length > 0)
+    .map(m => ({ role: m.role, content: m.content.trim() }));
+
+  // Ensure the last message is from the user (Anthropic requires this)
+  if (!cleanMessages.length || cleanMessages[cleanMessages.length - 1].role !== 'user') {
+    return new Response('Tin nhắn cuối phải là của user.', { status: 400 });
+  }
+
   // Extract task from last user message for context enrichment
-  const lastUserMsg = [...messages].reverse().find(m => m.role === 'user')?.content ?? '';
+  const lastUserMsg = cleanMessages.filter(m => m.role === 'user').at(-1)?.content ?? '';
   const ctx = await buildMeetingContext(lastUserMsg);
   const systemPrompt = buildEnrichedSystemPrompt(ctx);
 
   const client = new Anthropic({ apiKey });
 
-  const stream = await client.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 8096,
-    system: systemPrompt,
-    messages,
-    stream: true,
-  });
+  let stream;
+  try {
+    stream = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 8096,
+      system: systemPrompt,
+      messages: cleanMessages,
+      stream: true,
+    });
+  } catch (err: unknown) {
+    // Surface the actual Anthropic error so it's visible in Vercel logs and to the frontend
+    const errMsg = err instanceof Error ? err.message : JSON.stringify(err);
+    console.error('[/api/meeting] Anthropic error:', errMsg);
+    return new Response(
+      JSON.stringify({ error: errMsg }),
+      { status: 502, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
 
   // Stream plain text chunks to frontend
   const encoder = new TextEncoder();
@@ -53,6 +75,8 @@ export async function POST(req: Request) {
             controller.enqueue(encoder.encode(event.delta.text));
           }
         }
+      } catch (err) {
+        console.error('[/api/meeting] Stream error:', err);
       } finally {
         controller.close();
       }
