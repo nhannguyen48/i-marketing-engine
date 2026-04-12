@@ -4,19 +4,27 @@
   "business_model": "Đóng gói và Phân phối cà phê rang mộc cao cấp",
   "product": "Hạt cà phê rang mộc Sài Gòn Bold",
   "slogan": "Đậm đà bản sắc, trọn vẹn niềm tin",
-  "logo_path": "assets/logos/official_logo_square.png",
-  "logo_horizontal_path": "assets/logos/official_logo_horizontal.png",
-  "logo_transparent_path": "assets/logos/official_logo_square_transparent.png",
+  "logo_path": "assets/logos/official_logo_full_color.png",
+  "logo_horizontal_path": "assets/logos/official_logo_horizontal_color.png",
+  "logo_transparent_path": "assets/logos/official_logo_square_white.png",
   "website": "caphenhantam.com",
   "hotline": "038.439.6838",
-  "vo_voice_id": "vi-VN-Neural2-D",
+  "vo_voice_id": "vi-VN-Wavenet-D",
+  "vo_provider": "Google Cloud TTS (Wavenet)",
+  "secondary_vo_provider": "elevenlabs",
+  "secondary_vo_voice_id": "qp0lBtq2TxYPepHSR0D1",
+  "secondary_voice_path": "assets/audio/elevenlabs/nhan-tam-v23-ULTRA-THICK-FINAL.mp3",
+  "voice_identity": {
+    "narrative": "assets/audio/studio/nhan-tam-intro-v12-processed.mp3",
+    "advertising": "assets/audio/elevenlabs/nhan-tam-v23-ULTRA-THICK-FINAL.mp3"
+  },
   "bgm_style": "Professional Corporate Modern Distribution Success",
   "tvc_script": "Bạn đang tìm nguồn cung cấp hạt cà phê ổn định cho chuỗi xe đẩy hay kiosk của mình? Đừng để lợi nhuận bị bào mòn bởi các đầu mối trung gian kém chất lượng. Tại Cà Phê Nhân Tâm, chúng tôi tập trung tối ưu khâu tuyển chọn, đóng gói và phân phối trực tiếp hạt cà phê rang mộc chuẩn gu Sài Gòn. Mỗi mẻ hạt Sài Gòn Bold đều được chúng tôi kiểm soát chất lượng khắt khe ngay tại kho đóng gói, đảm bảo lớp crema dày mịn, hương vị đậm đà và đặc biệt không bao giờ vỡ phom đá. Nhân Tâm mang đến giải pháp tối ưu giá vốn: Lấy hàng trực tiếp từ hệ thống phân phối, không qua trung gian. Chỉ cần mua một ký, chúng tôi tính ngay giá sỉ cho lô lẻ đầu tiên. Đây chính là điểm tựa vận hành bền vững cho quán của bạn. Truy cập cà phê nhân tâm chấm com hoặc hotline không ba tám, bốn ba chín, sáu tám ba tám để nhận tư vấn ngay hôm nay. Cà Phê Nhân Tâm – Đậm đà bản sắc, trọn vẹn niềm tin.",
   "social_media": {
     "facebook": {
-      "page_id": "REPLACE_WITH_PAGE_ID",
-      "access_token": "REPLACE_WITH_PAGE_ACCESS_TOKEN",
-      "status": "Inactive"
+      "page_id": "110245204765577",
+      "access_token": "EAAMSYdBXtQ4BRMFJZB1pZATsY7N9jCqCqhRnyBHWyUxgcqSsS7prXvZAOaSDhGAqgZBZBZA8BR1WnDpcPMjzAqkun5JiZAKJTd1GurLefJc2pqv2Ab6wt1IZAfXOVN67jEgMyTVZAyklD9g7yQ1hKdRoUn7ZC4YwCx9IUPcKBgXZAZC6EZAyJ6GjQ6pLeoyYZBGt7BKfVqnEZBClMOqBf5hL31HuBoZD",
+      "status": "Active"
     },
     "tiktok": {
       "account_id": "REPLACE_WITH_TIKTOK_ID",

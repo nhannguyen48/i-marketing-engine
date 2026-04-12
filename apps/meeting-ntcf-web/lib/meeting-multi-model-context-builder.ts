@@ -59,17 +59,23 @@ export async function buildMeetingContext(task: string): Promise<MeetingContext>
   const hasStockKeys = !!(pexelsKey || pixabayKey || unsplashKey);
   const needsVideo   = /video|clip|reels|tiktok|quay/i.test(task);
 
+  // OpenAI + Gemini cross-model insights are disabled by default to save tokens & API costs.
+  // Each call adds ~1,000 input tokens AND charges a separate API fee.
+  // Re-enable by setting ENABLE_CROSS_MODEL=true in Vercel env vars.
+  const crossModelEnabled = process.env.ENABLE_CROSS_MODEL === 'true';
+
   const [searchResults, baoInsight, hungInsight, gscData, ga4Data, relatedSessions, stockMediaRaw, brandKnowledge] = await Promise.all([
     tavilyKey              ? fetchTavilySearch(task, tavilyKey)              : Promise.resolve(''),
-    openaiKey              ? fetchBaoOpenAIInsight(task, openaiKey)          : Promise.resolve(''),
-    geminiKey              ? fetchHungGeminiInsight(task, geminiKey)         : Promise.resolve(''),
+    crossModelEnabled && openaiKey  ? fetchBaoOpenAIInsight(task, openaiKey) : Promise.resolve(''),
+    crossModelEnabled && geminiKey  ? fetchHungGeminiInsight(task, geminiKey): Promise.resolve(''),
     hasGcpCreds && isSeoTask(task)       ? fetchGscSeoData(gcpEmail, gcpKey)       : Promise.resolve(''),
     hasGcpCreds && isAnalyticsTask(task) ? fetchGa4TrafficData(gcpEmail, gcpKey)   : Promise.resolve(''),
     findRelatedSessions(task).catch(() => []),
     hasStockKeys && isVisualTask(task)
       ? fetchStockMedia(extractSearchQuery(task), needsVideo, { pexels: pexelsKey, pixabay: pixabayKey, unsplash: unsplashKey })
       : Promise.resolve({ images: [], videos: [] }),
-    fetchBrandKnowledge().catch(() => ''),
+    // Pass task so fetcher returns only relevant brand doc sections (saves ~14K tokens)
+    fetchBrandKnowledge(task).catch(() => ''),
   ]);
 
   const pastSessions = formatSessionsAsContext(relatedSessions);

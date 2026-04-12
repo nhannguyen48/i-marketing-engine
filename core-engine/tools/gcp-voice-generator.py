@@ -3,7 +3,7 @@ import json
 from google.cloud import texttospeech
 
 # Đường dẫn key GCP
-KEY_PATH = 'clever-grid-405215-5bc54c24d2b8.json'
+KEY_PATH = 'gcp-key.json'
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = KEY_PATH
 
 def generate_gcp_voice(text, voice_name, speaking_rate=1.0, pitch=0.0, filename="output"):
@@ -46,13 +46,15 @@ def generate_gcp_voice(text, voice_name, speaking_rate=1.0, pitch=0.0, filename=
     return path
 
 if __name__ == "__main__":
-    # Load script từ brand-identity.json (Bản Core)
+    # Load script từ tệp kịch bản 30s
+    script_path = 'brands/nhan-tam/content/video/tvc/script-specials-30s.txt'
+    with open(script_path, 'r', encoding='utf-8') as f:
+        tvc_text = f.read().strip()
+    
     with open('brands/nhan-tam/brand-identity.json', 'r', encoding='utf-8') as f:
         brand = json.load(f)
     
-    tvc_text = brand['tvc_script']
-    voice_id = brand.get('vo_voice_id', 'vi-VN-Neural2-D')
+    voice_id = 'vi-VN-Wavenet-D'
 
-    print(f"--- PRODUCING FINAL DISTRIBUTION TVC VOICEOVER ({voice_id}) ---")
-    # Tốc độ đọc tự nhiên (1.0) để đảm bảo tính chuyên nghiệp và rõ chữ
-    generate_gcp_voice(tvc_text, voice_id, speaking_rate=1.0, pitch=-1.0, filename="final-distribution-tvc-vo")
+    print(f"--- PRODUCING 30S SPECIALS TVC VOICEOVER ({voice_id}) ---")
+    generate_gcp_voice(tvc_text, voice_id, speaking_rate=0.92, pitch=0.0, filename="nhan-tam-specials-30s-vo-v3")

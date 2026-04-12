@@ -227,42 +227,42 @@ Tự làm khi: draft content, research, báo cáo nội bộ, outline.
 **QUAN TRỌNG:** Luôn bắt đầu bằng Bước 1 (phân tích). Không bỏ qua bước nào.
 `;
 
-// Injects real-time search results and cross-model insights into the base prompt.
-// Sections are only appended when the corresponding API key is present and returned data.
-export function buildEnrichedSystemPrompt(ctx: MeetingContext): string {
-  const sections: string[] = [MEETING_SYSTEM_PROMPT.trimEnd()];
+// Returns { staticPrompt, dynamicContext } so the route can cache staticPrompt separately.
+// Anthropic prompt caching: static block costs 25% on first write, 10% on cache hits.
+// Dynamic context changes per request so it must not be cached.
+export function buildEnrichedSystemPrompt(ctx: MeetingContext): {
+  staticPrompt: string;
+  dynamicContext: string;
+} {
+  const dynamic: string[] = [];
 
   if (ctx.searchResults) {
-    sections.push(`\n\n---\n\n## DỮ LIỆU WEB THỰC TẾ (Tavily — vừa tra)\n${ctx.searchResults}\n\nSử dụng dữ liệu này để làm phong phú thêm các góc độ phân tích — đặc biệt cho Bảo (competitive), Phúc (SEO), Hà Linh (trend).`);
+    dynamic.push(`\n\n---\n\n## DỮ LIỆU WEB THỰC TẾ (Tavily — vừa tra)\n${ctx.searchResults}\n\nSử dụng dữ liệu này để làm phong phú thêm các góc độ phân tích — đặc biệt cho Bảo (competitive), Phúc (SEO), Hà Linh (trend).`);
   }
-
   if (ctx.baoInsight) {
-    sections.push(`\n\n---\n\n## PHÂN TÍCH RISK & CẠNH TRANH — BẢO (GPT-4o-mini)\n${ctx.baoInsight}\n\nĐây là quan điểm độc lập từ model bên ngoài. Bảo nên tích hợp những điểm này vào lập luận của mình.`);
+    dynamic.push(`\n\n---\n\n## PHÂN TÍCH RISK & CẠNH TRANH — BẢO (GPT-4o-mini)\n${ctx.baoInsight}\n\nBảo nên tích hợp những điểm này vào lập luận của mình.`);
   }
-
   if (ctx.hungInsight) {
-    sections.push(`\n\n---\n\n## PHÂN TÍCH HỆ THỐNG — HÙNG (Gemini 2.0 Flash)\n${ctx.hungInsight}\n\nĐây là phân tích độc lập từ model bên ngoài. Hùng nên dùng làm nền cho lập luận systematic của mình.`);
+    dynamic.push(`\n\n---\n\n## PHÂN TÍCH HỆ THỐNG — HÙNG (Gemini 2.0 Flash)\n${ctx.hungInsight}\n\nHùng nên dùng làm nền cho lập luận systematic của mình.`);
   }
-
   if (ctx.gscData) {
-    sections.push(`\n\n---\n\n## DỮ LIỆU GOOGLE SEARCH CONSOLE — PHÚC (SEO Lead)\n${ctx.gscData}\n\nPhúc phải dùng số liệu thực này khi phát biểu về SEO — nêu cụ thể query, CTR, vị trí. Đừng nói chung chung.`);
+    dynamic.push(`\n\n---\n\n## DỮ LIỆU GOOGLE SEARCH CONSOLE — PHÚC\n${ctx.gscData}`);
   }
-
   if (ctx.ga4Data) {
-    sections.push(`\n\n---\n\n## DỮ LIỆU GOOGLE ANALYTICS 4 — MAI (Data & Insights)\n${ctx.ga4Data}\n\nMai phải dùng số liệu thực này khi phân tích performance — nêu cụ thể sessions, kênh, trend. Đừng estimate.`);
+    dynamic.push(`\n\n---\n\n## DỮ LIỆU GOOGLE ANALYTICS 4 — MAI\n${ctx.ga4Data}`);
   }
-
   if (ctx.pastSessions) {
-    sections.push(`\n\n---\n\n## KÝ ỨC PHIÊN HỌP TRƯỚC (liên quan đến task này)\n${ctx.pastSessions}\n\nTHƯƠNG và team phải tham chiếu những phiên này: nhắc lại quyết định cũ, cập nhật tiến độ, tránh lặp tranh luận đã giải quyết. Nếu có task chưa xong từ phiên trước → Thương báo cáo ngay đầu phiên.`);
+    dynamic.push(`\n\n---\n\n## KÝ ỨC PHIÊN HỌP TRƯỚC\n${ctx.pastSessions}\n\nThương tham chiếu những phiên này: nhắc lại quyết định cũ, tránh lặp tranh luận đã giải quyết.`);
   }
-
   if (ctx.stockMedia) {
-    sections.push(`\n\n---\n\n## STOCK ASSETS SẴN SÀNG DÙNG MIỄN PHÍ\n${ctx.stockMedia}\n\nKhoa và Ngọc: khi đề xuất asset cụ thể, PHẢI cite đúng URL Thumb và Full từ danh sách trên theo format:\n[ASSET: thumb=<thumb_url> full=<full_url> source=<source> title=<title>]\nFrontend sẽ render thumbnail tự động. Chọn asset phù hợp nhất với brief, giải thích tại sao chọn.`);
+    dynamic.push(`\n\n---\n\n## STOCK ASSETS SẴN SÀNG DÙNG MIỄN PHÍ\n${ctx.stockMedia}\n\nKhoa và Ngọc: cite đúng URL theo format [ASSET: thumb=<url> full=<url> source=<src> title=<t>].`);
   }
-
   if (ctx.brandKnowledge) {
-    sections.push(`\n\n---\n\n${ctx.brandKnowledge}\n\n**QUAN TRỌNG:** Toàn bộ nhân sự PHẢI dùng tài liệu trên làm nguồn sự thật duy nhất (single source of truth) khi phát biểu về giá, sản phẩm, brand voice, chiến lược. Không được bịa số liệu hay suy đoán nếu tài liệu đã có câu trả lời rõ ràng.`);
+    dynamic.push(`\n\n---\n\n${ctx.brandKnowledge}\n\n**QUAN TRỌNG:** Toàn bộ nhân sự PHẢI dùng tài liệu trên làm nguồn sự thật duy nhất. Không được bịa số liệu hay suy đoán nếu tài liệu đã có câu trả lời rõ ràng.`);
   }
 
-  return sections.join('');
+  return {
+    staticPrompt:   MEETING_SYSTEM_PROMPT.trimEnd(),
+    dynamicContext: dynamic.join(''),
+  };
 }

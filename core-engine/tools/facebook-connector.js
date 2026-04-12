@@ -4,6 +4,7 @@
  */
 
 const fs = require('fs');
+const path = require('path');
 
 class FacebookConnector {
     constructor(pageId, accessToken) {
@@ -60,40 +61,45 @@ class FacebookConnector {
      * Upload Video (Resumable Simple Version)
      */
     async uploadVideo(videoPath, description) {
-        // Step 1: Initialize
-        const initUrl = `${this.baseUrl}/${this.pageId}/videos`;
-        const initRes = await fetch(initUrl, {
+        // Step 1: Initialize (Phase start)
+        const url = `${this.baseUrl}/${this.pageId}/videos`;
+        const initRes = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 upload_phase: 'start',
+                file_size: fs.statSync(videoPath).size,
                 access_token: this.accessToken
             })
         });
         const initData = await initRes.json();
-        
         if (initData.error) throw new Error(initData.error.message);
 
-        const { upload_url, video_id } = initData;
+        const { upload_session_id } = initData;
 
-        // Step 2: Upload File
+        // Step 2: Upload File (Phase transfer)
         const videoBuffer = fs.readFileSync(videoPath);
-        await fetch(upload_url, {
-            method: 'POST',
-            headers: {
-                'Authorization': `OAuth ${this.accessToken}`,
-                'Content-Type': 'video/mp4'
-            },
-            body: videoBuffer
-        });
+        const formData = new FormData();
+        formData.append('upload_phase', 'transfer');
+        formData.append('upload_session_id', upload_session_id);
+        formData.append('start_offset', '0');
+        formData.append('access_token', this.accessToken);
+        formData.append('video_file_chunk', new Blob([videoBuffer]), path.basename(videoPath));
 
-        // Step 3: Finish
-        const finishRes = await fetch(initUrl, {
+        const transferRes = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        const transferData = await transferRes.json();
+        if (transferData.error) throw new Error(transferData.error.message);
+
+        // Step 3: Finish (Phase finish)
+        const finishRes = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                upload_phase: 'transfer',
-                video_id: video_id,
+                upload_phase: 'finish',
+                upload_session_id: upload_session_id,
                 description: description,
                 access_token: this.accessToken
             })

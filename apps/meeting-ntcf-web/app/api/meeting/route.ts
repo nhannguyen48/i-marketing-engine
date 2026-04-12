@@ -36,21 +36,36 @@ export async function POST(req: Request) {
     return new Response('Tin nhắn cuối phải là của user.', { status: 400 });
   }
 
+  // Keep only last 8 messages to cap history tokens.
+  // Early turns are less relevant; the system prompt + brand docs carry the context.
+  const trimmedMessages = cleanMessages.slice(-8);
+
   // Extract task from last user message for context enrichment
-  const lastUserMsg = cleanMessages.filter(m => m.role === 'user').at(-1)?.content ?? '';
+  const lastUserMsg = trimmedMessages.filter(m => m.role === 'user').at(-1)?.content ?? '';
   const ctx = await buildMeetingContext(lastUserMsg);
-  const systemPrompt = buildEnrichedSystemPrompt(ctx);
+  const { staticPrompt, dynamicContext } = buildEnrichedSystemPrompt(ctx);
 
   const client = new Anthropic({ apiKey });
+
+  // Prompt caching strategy:
+  //   staticPrompt   → cache_control: ephemeral → cached for 5 min, 10% cost on hits
+  //   dynamicContext → no cache → changes every request (search results, brand docs, etc.)
+  // Switching to claude-haiku-4-5 saves ~12× vs Sonnet at equivalent quality for roleplay.
+  const systemBlocks: Anthropic.TextBlockParam[] = [
+    { type: 'text', text: staticPrompt, cache_control: { type: 'ephemeral' } } as Anthropic.TextBlockParam,
+  ];
+  if (dynamicContext) {
+    systemBlocks.push({ type: 'text', text: dynamicContext });
+  }
 
   let stream;
   try {
     stream = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 8096,
-      system: systemPrompt,
-      messages: cleanMessages,
-      stream: true,
+      model:      'claude-sonnet-4-6',
+      max_tokens: 4000,
+      system:     systemBlocks,
+      messages:   trimmedMessages,
+      stream:     true,
     });
   } catch (err: unknown) {
     // Surface the actual Anthropic error so it's visible in Vercel logs and to the frontend

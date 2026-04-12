@@ -138,7 +138,19 @@
 
 ---
 
-## 9. Thông điệp marketing cốt lõi theo từng kênh
+## 9. Voice Identity (Bản sắc âm thanh)
+
+Giọng đọc đại diện cho Nhân Tâm phải phản ánh đúng tính cách: **Chân thành, Am hiểu và Đồng hành**.
+
+| Vai trò | Thông số kỹ thuật | Đặc điểm âm thanh |
+|---|---|---|
+| **Giọng đọc chính** | - **Primary (Narrative):** Google Cloud Wavenet-D (Studio V12) - Chân thành, mộc mạc. <br> - **Secondary (Advertising/TikTok):** ElevenLabs V23 (Minh - Ultra Thick) - Năng động, thanh và lực, chuẩn phong cách TikTok viral. | Trầm ấm, nam tính, chững chạc, tạo sự tin cậy cao. |
+| **Giọng kể chuyện (Choice 2)** | `V12 - Studio Standard` | Giọng Wavenet-D được xử lý hậu kỳ Radio Edit (Nén, EQ, Vang nhẹ). Dùng cho Storytelling. |
+| **Cấu hình tối ưu** | Rate: 0.9 | Đọc chậm rãi, rõ chữ, nhịp điệu người thợ. |
+
+---
+
+## 10. Thông điệp marketing cốt lõi theo từng kênh
 
 | Kênh | Thông điệp chủ đạo |
 |---|---|

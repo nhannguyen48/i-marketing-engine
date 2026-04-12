@@ -20,8 +20,18 @@ export async function POST(req: Request) {
     sessionContext: string;
   };
 
-  const pending = (assignments ?? []).filter((a: MeetingAssignment) => a.status === 'pending');
-  if (!pending.length) return new Response('no pending', { status: 400 });
+  // If assignments not passed (or empty), load from KV using sessionId.
+  // The frontend saves sessions then resets sessionId — execute must use the saved ID.
+  let pending: MeetingAssignment[] = (assignments ?? []).filter(
+    (a: MeetingAssignment) => a.status === 'pending',
+  );
+
+  if (!pending.length && sessionId) {
+    const saved = await getSession(sessionId);
+    pending = (saved?.assignments ?? []).filter(a => a.status === 'pending');
+  }
+
+  if (!pending.length) return new Response('no pending assignments', { status: 400 });
 
   const encoder = new TextEncoder();
 

@@ -263,7 +263,10 @@ export default function MeetingPage() {
   const [activeModels, setActiveModels] = useState<string[]>([]);
   const [syncState, setSyncState]       = useState<'idle' | 'syncing' | 'ok' | 'error'>('idle');
 
-  const sessionIdRef   = useRef<string>(Date.now().toString(36));
+  const sessionIdRef     = useRef<string>(Date.now().toString(36));
+  // Tracks the ID of the last saved session so runExecution can look up assignments from KV.
+  // sessionIdRef resets after each save; lastSavedSessionIdRef keeps the saved ID.
+  const lastSavedSessionIdRef = useRef<string>('');
   const lastTaskRef    = useRef<string>('');
   const lastMeetingRef = useRef<string>('');
   const bottomRef      = useRef<HTMLDivElement>(null);
@@ -379,7 +382,7 @@ export default function MeetingPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          sessionId: sessionIdRef.current,
+          sessionId: lastSavedSessionIdRef.current || sessionIdRef.current,
           task: lastTaskRef.current,
           sessionContext: lastMeetingRef.current.slice(0, 3000),
           assignments: [],
@@ -456,10 +459,12 @@ export default function MeetingPage() {
       onTypewriterDoneRef.current = () => {
         const fullText = rawTextRef.current;
         if (!approval) {
-          lastTaskRef.current    = task;
-          lastMeetingRef.current = fullText;
+          lastTaskRef.current         = task;
+          lastMeetingRef.current      = fullText;
+          // Snapshot current sessionId before resetting — execute will need it
+          lastSavedSessionIdRef.current = sessionIdRef.current;
           saveSessionAsync(task, fullText);
-          sessionIdRef.current   = Date.now().toString(36);
+          sessionIdRef.current        = Date.now().toString(36);
         }
         if (approval) runExecution(approval);
       };

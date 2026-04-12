@@ -89,3 +89,9 @@ clever-grid-*.json
 gcp-key.json
 .env*
 brands/*/brand-identity.json
+
+# AI Agency Framework
+scratch/
+.claude/
+!brands/*/brand-identity.json
+gcp-ame-director-key.json
