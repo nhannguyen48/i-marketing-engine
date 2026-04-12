@@ -1,4 +1,5 @@
 'use client';
+// Force-rebuild to resolve Vercel routing 404 after repo restructure
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 

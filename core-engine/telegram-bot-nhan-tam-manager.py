@@ -178,7 +178,7 @@ def handle_query_info(params: dict) -> tuple[str, None]:
 
 # ---------- Telegram handlers ----------
 
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):  # noqa: ARG001
     text = update.message.text or ""
     await update.message.chat.send_action(ChatAction.TYPING)
 
@@ -225,7 +225,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                               filename=result_file.name)
 
 
-async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):  # noqa: ARG001
     await update.message.reply_text(
         "👋 Chào Sếp Nhân!\n\n"
         "Mình là trợ lý Nhân Tâm Manager. Sếp có thể nhắn:\n\n"
@@ -246,10 +246,19 @@ def main():
 
     sys.stdout.reconfigure(encoding='utf-8')
     print("[BOT] Nhan Tam Manager Bot dang chay...")
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
+    app = (
+        ApplicationBuilder()
+        .token(BOT_TOKEN)
+        .connect_timeout(30)
+        .read_timeout(30)
+        .write_timeout(30)
+        .pool_timeout(30)
+        .build()
+    )
     app.add_handler(CommandHandler("start", cmd_start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    app.run_polling(poll_interval=2)
+    print("[BOT] Starting polling...")
+    app.run_polling(poll_interval=3, timeout=30, drop_pending_updates=True)
 
 
 if __name__ == "__main__":
