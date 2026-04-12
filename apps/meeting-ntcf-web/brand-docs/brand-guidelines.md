@@ -97,24 +97,19 @@
 
 ## 7. Tone of Voice (Giọng điệu thương hiệu)
 
-### Tính cách thương hiệu
-
 | Tính từ | Biểu hiện |
 |---|---|
-| **Chân thành** | Nói thật về giá, về nguồn gốc, không phóng đại |
-| **Am hiểu** | Dùng thuật ngữ đúng của ngành (body, crema, bloom, ratio) nhưng giải thích dễ hiểu |
-| **Đồng hành** | Nói như bạn đồng nghiệp trong ngành, không phải như nhà cung cấp xa lạ |
-| **Thực dụng** | Tập trung vào lợi ích cụ thể: tiết kiệm bao nhiêu, ngon hơn thế nào |
-
-### Nên dùng ✅ / Không nên dùng ❌
+| **Chân thành & Gần gũi** | Nói như người trong nghề chia sẻ với nhau. Không dùng từ ngữ đao to búa lớn (Tuyệt tác, Đỉnh cao). Tập trung vào sự thật: sạch, hạt mộc, giá xưởng. |
+| **Chiến lược & Thực dụng** | Dùng thuật ngữ kinh doanh thực tế (Unit Economics, Biên lợi nhuận, Điểm hoà vốn). Tập trung vào lợi ích tài chính và sự bền vững của quán. |
+| **Am hiểu & Đồng hành** | Dùng thuật ngữ ngành đúng (Body, Crema, Ratio) nhưng giải thích dưới góc độ tối ưu hóa vận hành cho chủ quán. |
 
 | ✅ Nên dùng | ❌ Không nên dùng |
 |---|---|
-| "Đồng hành cùng quán bạn" | "Thương hiệu hàng đầu Việt Nam" |
-| "Tối ưu giá vốn" / "Biên lợi nhuận cao hơn" | "Rẻ nhất thị trường" |
-| "Hạt rang mộc 100%, không tẩm" | "Vị ngon nhất" (chủ quan) |
-| "Giao hàng nội thành trong ngày" | "Chất lượng vượt trội" (chung chung) |
-| "Mix theo gu riêng của quán bạn" | "Sản phẩm cao cấp" (không có bằng chứng) |
+| "Tối ưu giá vốn" / "Giải pháp vận hành" | "Tuyệt tác cà phê" / "Đỉnh cao hương vị" |
+| "Chuẩn hóa gu vị" / "Hệ thống phân phối" | "Hào sảng" / "Đẳng cấp thượng lưu" |
+| "Biên lợi nhuận ròng" / "Điểm hòa vốn" | "Rẻ nhất thị trường" |
+| "Hạt rang mộc từ xưởng" | "Chất lượng vượt trội" (không chứng minh) |
+| "Đồng hành cùng chủ quán" | "Nhà cung cấp hàng đầu" |
 
 ---
 
@@ -138,7 +133,19 @@
 
 ---
 
-## 9. Thông điệp marketing cốt lõi theo từng kênh
+## 9. Voice Identity (Bản sắc âm thanh)
+
+Giọng đọc đại diện cho Nhân Tâm phải phản ánh đúng tính cách: **Chân thành, Am hiểu và Đồng hành**.
+
+| Vai trò | Thông số kỹ thuật | Đặc điểm âm thanh |
+|---|---|---|
+| **Giọng đọc chính** | - **Primary (Narrative):** Google Cloud Wavenet-D (Studio V12) - Chân thành, mộc mạc. <br> - **Secondary (Advertising/TikTok):** ElevenLabs V23 (Minh - Ultra Thick) - Năng động, thanh và lực, chuẩn phong cách TikTok viral. | Trầm ấm, nam tính, chững chạc, tạo sự tin cậy cao. |
+| **Giọng kể chuyện (Choice 2)** | `V12 - Studio Standard` | Giọng Wavenet-D được xử lý hậu kỳ Radio Edit (Nén, EQ, Vang nhẹ). Dùng cho Storytelling. |
+| **Cấu hình tối ưu** | Rate: 0.9 | Đọc chậm rãi, rõ chữ, nhịp điệu người thợ. |
+
+---
+
+## 10. Thông điệp marketing cốt lõi theo từng kênh
 
 | Kênh | Thông điệp chủ đạo |
 |---|---|
@@ -194,14 +201,11 @@
 | Heading | "SVN-Phudu", "Outfit" | 600-800 |
 | Body | "Inter", "Roboto" | 400-500 |
 
-### Brand Personality
-
 | Trait | Expression |
 |---|---|
-| **Chân thành** | Nói thật về giá, nguồn gốc, không phóng đại |
-| **Am hiểu** | Thuật ngữ ngành đúng (body, crema, bloom, ratio), giải thích dễ hiểu |
-| **Đồng hành** | Nói như bạn đồng nghiệp trong ngành, không phải nhà cung cấp xa lạ |
-| **Thực dụng** | Tập trung lợi ích cụ thể: tiết kiệm bao nhiêu, ngon hơn thế nào |
+| **Gần gũi** | Nói chuyện như đồng nghiệp, dùng từ ngữ đời thường nhưng chuyên nghiệp. Tránh hô hào. |
+| **Chiến lược** | Sử dụng tư duy số liệu: Unit Economics, biên lợi nhuận, tối ưu phí vận hành. |
+| **Chân thực** | Hình ảnh xưởng thật, hạt thật, cam kết hạt mộc 100%. |
 
 ### Core Attributes
 

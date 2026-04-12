@@ -1,685 +1,366 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
-interface Message { role: 'user' | 'assistant'; content: string; }
+// NOTE: We are using a client component for the simulator and animations
+export default function PlaybookPage() {
+  // Simulator State
+  const [price, setPrice] = useState(250000);
+  const [raw, setRaw] = useState(150000);
+  const [comm, setComm] = useState(7000);
+  const [ads, setAds] = useState(10000000);
+  const [opex, setOpex] = useState(53000000);
+  const [cac, setCac] = useState(50000);
 
-interface PersonaTurn {
-  key: string;
-  type: 'persona' | 'divider' | 'text';
-  name?: string;
-  role?: string;
-  color?: string;
-  content: string;
-}
+  // Derived Metrics
+  const OTHER_VAR_COSTS = 21000;
+  const BASE_ORGANIC_VOL = 1000;
+  const adsVolume = ads / cac;
+  const totalVolume = BASE_ORGANIC_VOL + adsVolume;
+  const unitCost = raw + OTHER_VAR_COSTS + comm;
+  const unitMargin = price - unitCost;
+  const monthlyProfit = (totalVolume * unitMargin) - (opex + ads);
+  const INITIAL_CAPITAL = 400000000;
+  const bep = unitMargin > 0 ? Math.ceil((opex + ads) / unitMargin) : 0;
+  
+  const currentCash = INITIAL_CAPITAL + (monthlyProfit * 12);
+  const roi = ((currentCash - INITIAL_CAPITAL) / INITIAL_CAPITAL) * 100;
 
-const PERSONA_COLORS: Record<string, string> = {
-  'THƯƠNG':   '#C65C33', 'MINH CHÂU': '#3E6145', 'HÀ LINH':  '#7B4F9E',
-  'TUẤN ANH': '#1A6B8A', 'PHÚC':      '#2E7D32', 'NGỌC':     '#C2185B',
-  'KHOA':     '#455A64', 'MAI':        '#F57C00', 'ĐỨC':      '#1565C0',
-  'THANH':    '#6A1550', 'LIÊN':       '#558B2F', 'BẢO':      '#4E342E',
-  'HÙNG':     '#37474F', 'KHẢI':       '#B71C1C', 'TÚ':       '#00695C',
-  'HƯƠNG':    '#6A1B9A',
-};
+  // UI Helper
+  const formatVND = (num: number) => 
+    new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(num);
 
-const SUGGESTIONS = [
-  'Lên kế hoạch content Facebook tháng 5',
-  'Phân tích đối thủ và đề xuất angle mới',
-  'Tạo chiến dịch lead gen cho startup F&B',
-];
-
-const MODEL_LABELS: Record<string, string> = {
-  'claude-sonnet-4-6': 'Claude', 'gpt-4o-mini': 'GPT-4o',
-  'gemini-2.0-flash':  'Gemini', 'tavily-search': '🌐 Web',
-  'gsc': 'GSC',  'ga4': 'GA4',
-  'memory': '🧠', 'stock-media': '📷', 'brand-docs': '📚',
-};
-
-// Derive 2-char initials from Vietnamese name
-function initials(name: string): string {
-  const w = name.trim().split(/\s+/);
-  return w.length >= 2
-    ? (w[0][0] + w[w.length - 1][0]).toUpperCase()
-    : name.slice(0, 2).toUpperCase();
-}
-
-// Parse raw stream text → array of PersonaTurn
-function parseToTurns(text: string): PersonaTurn[] {
-  const turns: PersonaTurn[] = [];
-  const lines = text.split('\n');
-  let cur: PersonaTurn | null = null;
-
-  const flush = () => { if (cur) { turns.push(cur); cur = null; } };
-
-  lines.forEach((line, i) => {
-    // Section divider (box-drawing chars)
-    if (/^[━╔╚║╗╝═─]/.test(line)) {
-      flush();
-      turns.push({ key: `div-${i}`, type: 'divider', content: line });
-      return;
-    }
-    // Persona message: [NAME — Role]: content
-    const m = line.match(/^\[([^—\]]+)—([^\]]+)\]:(.*)/);
-    if (m) {
-      flush();
-      const name    = m[1].trim().toUpperCase();
-      const role    = m[2].trim();
-      const content = m[3].trim();
-      const color   = Object.entries(PERSONA_COLORS).find(([k]) => name.includes(k))?.[1] ?? '#C65C33';
-      cur = { key: `${name}-${i}`, type: 'persona', name, role, color, content };
-      return;
-    }
-    if (!line.trim()) { flush(); return; }
-    if (cur?.type === 'persona') {
-      cur.content += (cur.content ? '\n' : '') + line;
-    } else {
-      flush();
-      cur = { key: `txt-${i}`, type: 'text', content: line };
-    }
-  });
-
-  flush();
-  return turns;
-}
-
-// Parse [ASSET:...] tags from message content
-interface AssetTag { thumb: string; full: string; source: string; title: string; }
-function parseAssetTags(text: string): Array<{ type: 'text' | 'asset'; value: string; asset?: AssetTag }> {
-  const segments: Array<{ type: 'text' | 'asset'; value: string; asset?: AssetTag }> = [];
-  const re = /\[ASSET:\s*thumb=(\S+)\s+full=(\S+)\s+source=(\S+)\s+title=([^\]]+)\]/g;
-  let last = 0, m: RegExpExecArray | null;
-  while ((m = re.exec(text)) !== null) {
-    if (m.index > last) segments.push({ type: 'text', value: text.slice(last, m.index) });
-    segments.push({ type: 'asset', value: m[0], asset: { thumb: m[1], full: m[2], source: m[3], title: m[4].trim() } });
-    last = m.index + m[0].length;
-  }
-  if (last < text.length) segments.push({ type: 'text', value: text.slice(last) });
-  return segments;
-}
-
-function AssetCard({ asset }: { asset: AssetTag }) {
-  return (
-    <a href={asset.full} target="_blank" rel="noopener noreferrer"
-       className="inline-flex flex-col gap-1 rounded-xl overflow-hidden shadow-sm my-1 max-w-[180px] align-top"
-       style={{ border: '1px solid var(--border)', textDecoration: 'none' }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={asset.thumb} alt={asset.title} className="w-full h-20 object-cover" loading="lazy" />
-      <div className="px-2 pb-1.5">
-        <p className="text-[10px] font-medium truncate" style={{ color: 'var(--text)' }}>{asset.title}</p>
-        <p className="text-[9px] opacity-70" style={{ color: 'var(--text-muted)' }}>{asset.source} · Tải về →</p>
-      </div>
-    </a>
-  );
-}
-
-function RichContent({ text, isActive }: { text: string; isActive: boolean }) {
-  const segments = parseAssetTags(text);
-  return (
-    <>
-      {segments.map((seg, i) =>
-        seg.type === 'asset' && seg.asset ? (
-          <AssetCard key={i} asset={seg.asset} />
-        ) : (
-          <span key={i}>
-            {seg.value.split('\n').map((ln, j) => (
-              <span key={j}>{j > 0 && <br />}{ln}</span>
-            ))}
-          </span>
-        )
-      )}
-      {isActive && <span className="typing-cursor" />}
-    </>
-  );
-}
-
-function TypingDots({ color }: { color: string }) {
-  return (
-    <span className="inline-flex items-center gap-[5px] h-5 px-1">
-      {[0, 0.2, 0.4].map((d, i) => (
-        <span key={i} className="streaming-dot rounded-full inline-block w-2 h-2"
-              style={{ background: color, animationDelay: `${d}s` }} />
-      ))}
-    </span>
-  );
-}
-
-// Section divider between meeting blocks
-function MeetingDivider({ content }: { content: string }) {
-  const isRule = /^[━═─\s]+$/.test(content.trim());
-  return (
-    <div className="flex items-center gap-3 py-2 px-1">
-      <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
-      {!isRule && (
-        <span className="text-[10px] font-semibold tracking-widest px-2 py-0.5 rounded-full"
-              style={{ color: 'var(--text-muted)', background: 'var(--bg-header)', border: '1px solid var(--border)' }}>
-          {content.replace(/^[━╔╚║╗╝═─\s]+|[━╔╚║╗╝═─\s]+$/g, '').trim() || '· · ·'}
-        </span>
-      )}
-      {isRule && (
-        <span className="text-xs opacity-30" style={{ color: 'var(--text-muted)' }}>· · ·</span>
-      )}
-      <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
-    </div>
-  );
-}
-
-// Single persona chat bubble
-function PersonaBubble({ turn, isActive, isFirst }: { turn: PersonaTurn; isActive: boolean; isFirst: boolean }) {
-  if (turn.type === 'divider') return <MeetingDivider content={turn.content} />;
-
-  if (turn.type === 'text') {
-    return (
-      <p className="text-xs text-center leading-relaxed px-4 py-1" style={{ color: 'var(--text-muted)' }}>
-        {turn.content}{isActive && <span className="typing-cursor" />}
-      </p>
-    );
-  }
-
-  const { name, role, color, content } = turn;
-  const isEmpty = !content.trim();
+  // Advice Logic
+  const getAdvice = () => {
+    if (unitMargin < 10000) return `"Cảnh báo: Biên lợi nhuận mỏng (chỉ ${formatVND(unitMargin)}/kg). Sếp đang rơi vào bẫy 'Cạnh tranh giá'. Ngay cả khi bán 10 tấn, dòng tiền cũng khó phục hồi."`;
+    if (monthlyProfit < 0) return `"Dòng tiền đang âm. Với tốc độ đốt ${formatVND(Math.abs(monthlyProfit))}/tháng, chúng ta sẽ cạn vốn sau ${Math.abs(INITIAL_CAPITAL / monthlyProfit).toFixed(1)} tháng."`;
+    if (cac > unitMargin) return `"Nghịch lý Quảng cáo: CAC (${formatVND(cac)}) cao hơn biên lợi nhuận (${formatVND(unitMargin)}). Bán càng nhiều từ quảng cáo càng lỗ vốn."`;
+    if (totalVolume > 3000) return `"Mô hình siêu lợi nhuận! Sếp đang tạo ra ${formatVND(monthlyProfit)} tiền mặt mỗi tháng. Hãy mở rộng ngay!"`;
+    return `"Trạng thái Tài chính ổn định. Lợi nhuận ròng đạt ${formatVND(monthlyProfit)}. Thương thấy đây là thời điểm vàng để thắt chặt quan hệ với các chủ quán sỉ."`;
+  };
 
   return (
-    <div className={`flex gap-3 items-end ${isFirst ? 'mt-1' : 'mt-2'} turn-appear`}>
-      {/* Avatar */}
-      <div className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center
-                      text-[11px] font-bold shadow select-none self-end mb-0.5"
-           style={{ background: color + '18', color, border: `1.5px solid ${color}55` }}>
-        {initials(name!)}
-      </div>
-
-      <div className="flex-1 min-w-0" style={{ maxWidth: 'calc(100% - 52px)' }}>
-        {/* Name + role */}
-        <div className="flex items-baseline gap-1.5 mb-1.5 ml-0.5">
-          <span className="text-[12px] font-bold leading-none" style={{ color }}>{name}</span>
-          <span className="text-[10px] leading-none opacity-60" style={{ color: 'var(--text-muted)' }}>{role}</span>
-        </div>
-
-        {/* Bubble */}
-        <div className="inline-block rounded-2xl rounded-bl-[6px] px-4 py-2.5 text-sm leading-relaxed shadow-sm"
-             style={{
-               background: 'var(--bg-card)',
-               border: `1.5px solid ${color}22`,
-               color: 'var(--text)',
-               boxShadow: `0 1px 4px ${color}10`,
-               maxWidth: '100%',
-             }}>
-          {isEmpty && isActive
-            ? <TypingDots color={color!} />
-            : <RichContent text={content} isActive={isActive} />
-          }
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Full meeting thread (one assistant message)
-function MeetingThread({ content, isStreaming, isLast }: {
-  content: string; isStreaming: boolean; isLast: boolean;
-}) {
-  const turns = parseToTurns(content);
-  return (
-    <div className="space-y-0.5">
-      {turns.map((turn, i) => (
-        <PersonaBubble
-          key={turn.key}
-          turn={turn}
-          isFirst={i === 0}
-          isActive={isLast && isStreaming && i === turns.length - 1}
-        />
-      ))}
-    </div>
-  );
-}
-
-// Detect approval keywords that trigger execution
-function detectApproval(text: string): string | null {
-  const m = text.match(/duyệt\s+([AB])/i);
-  return m ? m[1].toUpperCase() : null;
-}
-
-// ── Sync button icon states ───────────────────────────────────────────────
-function SyncIcon({ state }: { state: 'idle' | 'syncing' | 'ok' | 'error' }) {
-  if (state === 'syncing')
-    return <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />;
-  if (state === 'ok')
-    return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>;
-  if (state === 'error')
-    return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
-      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-    </svg>
-  );
-}
-
-// ── Main page ─────────────────────────────────────────────────────────────
-export default function MeetingPage() {
-  const [messages, setMessages]         = useState<Message[]>([]);
-  const [input, setInput]               = useState('');
-  const [isStreaming, setIsStreaming]    = useState(false);
-  const [isExecuting, setIsExecuting]   = useState(false);
-  const [activeModels, setActiveModels] = useState<string[]>([]);
-  const [syncState, setSyncState]       = useState<'idle' | 'syncing' | 'ok' | 'error'>('idle');
-
-  const sessionIdRef     = useRef<string>(Date.now().toString(36));
-  // Tracks the ID of the last saved session so runExecution can look up assignments from KV.
-  // sessionIdRef resets after each save; lastSavedSessionIdRef keeps the saved ID.
-  const lastSavedSessionIdRef = useRef<string>('');
-  const lastTaskRef    = useRef<string>('');
-  const lastMeetingRef = useRef<string>('');
-  const bottomRef      = useRef<HTMLDivElement>(null);
-  const textareaRef    = useRef<HTMLTextAreaElement>(null);
-
-  // ── Typewriter engine (recursive setTimeout) ──────────────────────────
-  // Speed tiers: CHAR_MS normal · NL_MS at newlines · TURN_MS before new speaker
-  const CHAR_MS = 15;
-  const NL_MS   = 80;
-  const TURN_MS = 750;
-
-  const rawTextRef          = useRef('');
-  const typePosRef          = useRef(0);
-  const streamDoneRef       = useRef(false);
-  const typeTimerRef        = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const onTypewriterDoneRef = useRef<(() => void) | null>(null);
-
-  function stopTypewriter() {
-    if (typeTimerRef.current) { clearTimeout(typeTimerRef.current); typeTimerRef.current = null; }
-  }
-
-  function scheduleTypewriterTick() {
-    const raw    = rawTextRef.current;
-    const pos    = typePosRef.current;
-    const target = raw.length;
-
-    if (pos >= target) {
-      if (streamDoneRef.current) {
-        stopTypewriter();
-        setIsStreaming(false);
-        onTypewriterDoneRef.current?.();
-        onTypewriterDoneRef.current = null;
-      } else {
-        typeTimerRef.current = setTimeout(scheduleTypewriterTick, 30);
-      }
-      return;
-    }
-
-    const ch     = raw[pos];
-    const newPos = pos + 1;
-    typePosRef.current = newPos;
-    setMessages(prev => [
-      ...prev.slice(0, -1),
-      { role: 'assistant', content: raw.slice(0, newPos) },
-    ]);
-
-    let delay = CHAR_MS + Math.random() * 8;
-    if (ch === '\n') {
-      const ahead         = raw.slice(newPos);
-      const skippedBlanks = ahead.match(/^[\n ]*/)?.[0].length ?? 0;
-      const nextChar      = ahead[skippedBlanks];
-      delay = nextChar === '[' ? TURN_MS : NL_MS;
-    }
-
-    typeTimerRef.current = setTimeout(scheduleTypewriterTick, delay);
-  }
-
-  function startTypewriter() {
-    stopTypewriter();
-    rawTextRef.current    = '';
-    typePosRef.current    = 0;
-    streamDoneRef.current = false;
-    typeTimerRef.current  = setTimeout(scheduleTypewriterTick, 80);
-  }
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  function autoResize(el: HTMLTextAreaElement) {
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
-  }
-
-  // Sync brand docs → Redis
-  async function syncBrandDocs() {
-    if (syncState === 'syncing') return;
-    setSyncState('syncing');
-    try {
-      const res  = await fetch('/api/meeting/sync-brand', { method: 'POST' });
-      const data = await res.json();
-      setSyncState(res.ok ? 'ok' : 'error');
-      if (res.ok) {
-        setActiveModels(prev => prev.includes('brand-docs') ? prev : [...prev, 'brand-docs']);
-        setTimeout(() => setSyncState('idle'), 3000);
-      } else {
-        console.error('Sync error:', data.error);
-        setTimeout(() => setSyncState('idle'), 4000);
-      }
-    } catch {
-      setSyncState('error');
-      setTimeout(() => setSyncState('idle'), 4000);
-    }
-  }
-
-  async function saveSessionAsync(task: string, meetingText: string) {
-    try {
-      await fetch('/api/meeting/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId: sessionIdRef.current, task, meetingText }),
-      });
-    } catch { /* non-critical */ }
-  }
-
-  async function runExecution(approvedPlan: string) {
-    if (isExecuting) return;
-    setIsExecuting(true);
-    const msg = `[THƯƠNG — PA]: ⚙️ Đã duyệt **Phương án ${approvedPlan}**. Team đang triển khai...`;
-    setMessages(prev => [...prev, { role: 'assistant', content: msg }]);
-    try {
-      const res = await fetch('/api/meeting/execute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId: lastSavedSessionIdRef.current || sessionIdRef.current,
-          task: lastTaskRef.current,
-          sessionContext: lastMeetingRef.current.slice(0, 3000),
-          assignments: [],
-        }),
-      });
-      if (!res.ok || !res.body) return;
-      const reader  = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buf = '';
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buf += decoder.decode(value, { stream: true });
-        const lines = buf.split('\n'); buf = lines.pop() ?? '';
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          try {
-            const evt = JSON.parse(line);
-            if (evt.type === 'result' && evt.output)
-              setMessages(prev => [...prev, { role: 'assistant', content: `[${evt.persona} — Output]:\n${evt.output}` }]);
-            if (evt.type === 'done') {
-              setMessages(prev => [...prev, {
-                role: 'assistant',
-                content: '[THƯƠNG — PA]: ✅ Team đã hoàn thành. Kết quả được lưu vào bộ nhớ cho phiên họp sau.',
-              }]);
-              sessionIdRef.current = Date.now().toString(36);
-            }
-          } catch { /* skip */ }
+    <div className="min-h-screen bg-[#1B0D05] text-[#FDF8ED] font-sans selection:bg-[#E6B980] selection:text-[#1B0D05]">
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@600;700;800&display=swap');
+        
+        :root {
+          --primary-brown: #1B0D05;
+          --accent-gold: #E6B980;
+          --accent-green: #2D5A27;
+          --heart-red: #D62828;
+          --burnt-orange: #C65C33;
+          --text-light: #FDF8ED;
+          --text-dim: rgba(253, 248, 237, 0.7);
+          --glass: rgba(255, 255, 255, 0.05);
+          --glass-border: rgba(255, 255, 255, 0.1);
+          --shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
-      }
-    } catch { /* non-critical */ } finally {
-      setIsExecuting(false);
-    }
-  }
 
-  async function sendMessage() {
-    const task = input.trim();
-    if (!task || isStreaming || isExecuting) return;
-    setInput('');
-    if (textareaRef.current) { textareaRef.current.style.height = 'auto'; textareaRef.current.blur(); }
-
-    const approval = detectApproval(task);
-    // Filter out empty/whitespace assistant messages before building history.
-    // These accumulate when a previous stream fails mid-flight and would cause
-    // Anthropic to return 400 ("message content must be non-empty").
-    const cleanHistory = messages.filter(m => m.content.trim().length > 0);
-    const history: Message[] = [...cleanHistory, { role: 'user', content: task }];
-    setMessages([...history, { role: 'assistant', content: '' }]);
-    setIsStreaming(true);
-    startTypewriter();
-
-    try {
-      const res = await fetch('/api/meeting', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history }),
-      });
-      if (!res.ok || !res.body) throw new Error(await res.text());
-
-      const modelsHeader = res.headers.get('X-Active-Models');
-      if (modelsHeader) setActiveModels(modelsHeader.split(',').filter(Boolean));
-
-      const reader  = res.body.getReader();
-      const decoder = new TextDecoder();
-      let text = '';
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        text += decoder.decode(value, { stream: true });
-        rawTextRef.current = text;
-      }
-
-      streamDoneRef.current = true;
-      onTypewriterDoneRef.current = () => {
-        const fullText = rawTextRef.current;
-        if (!approval) {
-          lastTaskRef.current         = task;
-          lastMeetingRef.current      = fullText;
-          // Snapshot current sessionId before resetting — execute will need it
-          lastSavedSessionIdRef.current = sessionIdRef.current;
-          saveSessionAsync(task, fullText);
-          sessionIdRef.current        = Date.now().toString(36);
+        h1, h2, h3, h4 {
+          font-family: 'Outfit', sans-serif;
+          text-transform: uppercase;
+          letter-spacing: 2px;
         }
-        if (approval) runExecution(approval);
-      };
-    } catch (err: unknown) {
-      stopTypewriter();
-      setIsStreaming(false);
-      const detail = (err instanceof Error ? err.message : String(err)).toLowerCase();
-      const isBilling = /credit|billing|quota|overload|insufficient/i.test(detail);
-      const errMsg = isBilling
-        ? '[THƯƠNG — PA]: ❌ API hết credits. Sếp Nhân vui lòng nạp thêm tiền vào tài khoản Anthropic rồi thử lại.'
-        : '[THƯƠNG — PA]: ❌ Có lỗi kết nối. Vui lòng thử lại.';
-      setMessages(prev => [
-        ...prev.slice(0, -1),
-        { role: 'assistant', content: errMsg },
-      ]);
-    }
-  }
 
-  function onKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-  }
+        .glass-card {
+          background: var(--glass);
+          backdrop-filter: blur(10px);
+          border: 1px solid var(--glass-border);
+          box-shadow: var(--shadow);
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-  const syncColors = {
-    ok:    { bg: '#3E614520', border: '#3E6145', color: '#3E6145' },
-    error: { bg: '#B71C1C20', border: '#B71C1C', color: '#B71C1C' },
-    idle:  { bg: 'var(--bg-input)', border: 'var(--border)', color: 'var(--text-muted)' },
-    syncing: { bg: 'var(--bg-input)', border: 'var(--border)', color: 'var(--text-muted)' },
-  }[syncState];
+        .glass-card:hover {
+          transform: translateY(-8px);
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(230, 185, 128, 0.3);
+        }
 
-  return (
-    /* Full-screen flex column — accounts for iOS safe areas */
-    <div className="flex flex-col w-full max-w-2xl mx-auto"
-         style={{ height: '100dvh', background: 'var(--bg)' }}>
+        input[type="range"] {
+          accent-color: var(--accent-gold);
+        }
+      `}</style>
 
-      {/* ── Header ────────────────────────────────────────────────────── */}
-      <header className="flex-shrink-0 border-b px-4 pt-3 pb-2"
-              style={{ background: 'var(--bg-header)', borderColor: 'var(--border)',
-                       paddingTop: 'max(12px, env(safe-area-inset-top))' }}>
-
-        {/* Row 1: logo + title + sync + status */}
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 shadow">
-            <Image src="/cpnt-logo.png" alt="Cà Phê Nhân Tâm" width={36} height={36}
-                   className="w-full h-full object-cover" />
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-sm leading-tight" style={{ color: 'var(--text)' }}>
-              Phòng Họp Nhân Tâm
-            </p>
-            <p className="text-[11px] leading-tight mt-0.5" style={{ color: 'var(--text-muted)' }}>
-              Thương · Thư ký của Sếp Nhân
-            </p>
-          </div>
-
-          {/* Sync brand docs button — 44px tap target */}
-          <button
-            onClick={syncBrandDocs}
-            disabled={syncState === 'syncing'}
-            title="Cập nhật tài liệu thương hiệu"
-            className="flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center
-                       transition-all active:scale-95 disabled:opacity-50"
-            style={{ background: syncColors.bg, border: `1.5px solid ${syncColors.border}`, color: syncColors.color }}>
-            <SyncIcon state={syncState} />
-          </button>
-
-          {/* Streaming status indicator */}
-          {(isStreaming || isExecuting) && (
-            <div className="flex-shrink-0 flex items-center gap-1.5 px-3 h-8 rounded-full text-xs font-medium"
-                 style={{ background: '#C65C3318', color: '#C65C33' }}>
-              {[0, 0.15, 0.3].map((d, i) => (
-                <span key={i} className="streaming-dot w-1.5 h-1.5 rounded-full"
-                      style={{ background: '#C65C33', animationDelay: `${d}s` }} />
-              ))}
-              <span className="ml-1 hidden xs:inline">
-                {isExecuting ? 'Đang triển khai' : 'Đang họp'}
-              </span>
-            </div>
-          )}
+      {/* Hero Section */}
+      <header className="relative h-[80vh] min-h-[500px] flex items-center justify-center text-center overflow-hidden">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-b from-[rgba(27,13,5,0.8)] to-[#1B0D05] z-10" />
+          <Image 
+            src="/hero_bg_premium.png" 
+            alt="Premium Coffee Background" 
+            fill 
+            className="object-cover opacity-50"
+            priority
+          />
         </div>
 
-        {/* Row 2: active model badges (always visible, wraps on small screens) */}
-        {activeModels.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1 mt-2">
-            {activeModels.map(m => (
-              <span key={m} className="text-[10px] font-medium px-2 py-0.5 rounded-full"
-                    style={{ background: 'var(--bg-input)', border: '1px solid var(--border)',
-                             color: 'var(--text-muted)' }}>
-                {MODEL_LABELS[m] ?? m}
-              </span>
-            ))}
+        <div className="relative z-20 px-6 animate-in fade-in slide-in-from-top-8 duration-1000">
+          <div className="mb-8 flex justify-center">
+            <Image 
+              src="/logos/official_logo_horizontal_transparent.png" 
+              alt="Nhân Tâm Logo" 
+              width={500} 
+              height={150} 
+              className="drop-shadow-[0_0_30px_rgba(230,185,128,0.4)] w-[280px] md:w-[500px]"
+            />
           </div>
-        )}
+          <p className="tracking-[0.5em] font-light text-[0.8rem] md:text-xl text-[#E6B980] uppercase mb-10">
+            Sincere • Insightful • Practical
+          </p>
+          <div className="mb-8 inline-block bg-[#C65C33] text-white px-8 py-3 rounded-xl font-extrabold shadow-2xl text-sm md:text-base tracking-widest">
+            STRATEGIC PLAYBOOK 2026
+          </div>
+          <div className="mt-6 flex flex-wrap justify-center gap-4">
+             <Link href="/meeting" className="bg-[#2D5A27] hover:bg-[#3d7a35] text-white px-6 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-xl flex items-center gap-2">
+                <span>🧠 Vào Phòng Họp AI (Meeting Room)</span>
+             </Link>
+          </div>
+        </div>
       </header>
 
-      {/* ── Messages ──────────────────────────────────────────────────── */}
-      <main className="flex-1 overflow-y-auto px-3 py-4 space-y-4"
-            style={{ overscrollBehavior: 'contain' }}>
-
-        {/* Empty state */}
-        {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full gap-5 pb-6 text-center px-4">
-            <div className="w-24 h-24 rounded-full overflow-hidden shadow-md">
-              <Image src="/cpnt-logo.png" alt="Cà Phê Nhân Tâm" width={96} height={96}
-                     className="w-full h-full object-cover" />
-            </div>
-            <div>
-              <p className="font-bold text-xl" style={{ color: 'var(--text)' }}>Chào Sếp Nhân!</p>
-              <p className="text-sm mt-1.5 leading-relaxed max-w-[260px] mx-auto"
-                 style={{ color: 'var(--text-muted)' }}>
-                Thương đang trực máy. Sếp muốn chuẩn bị nội dung hay phân tích thị trường gì hôm nay?
+      <main className="max-w-[1200px] mx-auto px-6 pb-24">
+        
+        {/* Signature Products */}
+        <section className="mb-24">
+          <h2 className="text-center mb-16 text-2xl md:text-4xl relative before:content-[''] before:block before:w-10 before:h-0.5 before:bg-[#E6B980] before:mx-auto before:mb-4 before:opacity-50">
+            Dòng Sản Phẩm Chữ Ký (Signature Series)
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="glass-card p-10 rounded-3xl relative overflow-hidden before:absolute before:top-0 before:left-0 before:w-full before:h-1 before:bg-[#E6B980] before:opacity-30">
+              <span className="text-[0.7rem] text-[#E6B980] font-semibold tracking-widest mb-3 block uppercase">70% R : 20% C : 10% A</span>
+              <h3 className="text-[#E6B980] text-xl mb-4">NHÂN TÂM - TÂM GIAO</h3>
+              <p className="text-[#FDF8ED]/70 text-sm leading-relaxed mb-8">
+                <strong>"Lời hứa của sự ổn định"</strong>. Vị đắng mộc mạc của Robusta nâng đỡ cho hương thơm dịu dàng của Arabica. Phù hợp cho những quán muốn xây dựng sự bền vững 365 ngày không đổi vị.
               </p>
+              <div className="text-3xl font-extrabold mt-auto">230,000 <span className="text-sm font-light opacity-60 ml-1">VNĐ/kg</span></div>
             </div>
-            <div className="flex flex-col gap-2.5 w-full max-w-sm">
-              {[
-                'Lên kế hoạch nội dung Facebook thực chiến',
-                'Phân tích đối thủ và tìm giải pháp khác biệt',
-                'Chiến lược thu hút khách hàng cho quán mới',
-              ].map(s => (
-                <button key={s}
-                  onClick={() => { setInput(s); textareaRef.current?.focus(); }}
-                  className="text-left text-sm rounded-2xl px-4 py-3.5 transition-all
-                             active:scale-[0.98] hover:shadow-sm"
-                  style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border)',
-                           color: 'var(--text)' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>→ </span>{s}
-                </button>
-              ))}
+
+            <div className="glass-card p-10 rounded-3xl relative overflow-hidden before:absolute before:top-0 before:left-0 before:w-full before:h-1 before:bg-[#C65C33] before:opacity-50">
+              <span className="text-[0.7rem] text-[#E6B980] font-semibold tracking-widest mb-3 block uppercase">80% Culi : 20% Robusta</span>
+              <h3 className="text-[#E6B980] text-xl mb-4">SÀI GÒN BOLD (ĐẬM CHẤT)</h3>
+              <p className="text-[#FDF8ED]/70 text-sm leading-relaxed mb-8">
+                <strong>"Dòng máu nóng của Sài Gòn"</strong>. Sự tôn vinh cái chất "lì" của người khởi nghiệp phố thị. Vị đắng chạm vào là tỉnh thức. Dành riêng cho xe đẩy, kiosk takeaway cần gu mạnh.
+              </p>
+              <div className="text-3xl font-extrabold mt-auto text-[#E6B980]">250,000 <span className="text-sm font-light opacity-60 ml-1">VNĐ/kg</span></div>
+            </div>
+
+            <div className="glass-card p-10 rounded-3xl relative overflow-hidden before:absolute before:top-0 before:left-0 before:w-full before:h-1 before:bg-[#D62828] before:opacity-50">
+              <span className="text-[0.7rem] text-[#E6B980] font-semibold tracking-widest mb-3 block uppercase">70% Moka : 30% Robusta</span>
+              <h3 className="text-[#E6B980] text-xl mb-4">HƯƠNG VỊ TRI KỶ (PREMIUM)</h3>
+              <p className="text-[#FDF8ED]/70 text-sm leading-relaxed mb-8">
+                <strong>"Bản giao hưởng của sự tinh tế"</strong>. Sử dụng Moka Cầu Đất — Nữ hoàng của các loại cà phê Việt. Mỗi ngụm là một dải hương hoa rừng. Dành cho các quán Specialty.
+              </p>
+              <div className="text-3xl font-extrabold mt-auto">350,000 <span className="text-sm font-light opacity-60 ml-1">VNĐ/kg</span></div>
             </div>
           </div>
-        )}
+        </section>
 
-        {messages.map((msg, idx) => (
-          <div key={idx}>
-            {msg.role === 'user' ? (
-              /* User bubble — right aligned */
-              <div className="flex gap-2.5 justify-end items-end msg-appear">
-                <div className="max-w-[78%]">
-                  <div className="text-[11px] text-right mb-1 font-semibold" style={{ color: '#C65C33' }}>
-                    Sếp Nhân
-                  </div>
-                  <div className="rounded-2xl rounded-br-[6px] px-4 py-2.5 text-sm leading-relaxed shadow-sm"
-                       style={{ background: '#C65C33', color: '#FDF8ED' }}>
-                    {msg.content}
-                  </div>
+        {/* Full Matrix */}
+        <section className="mb-24">
+          <h2 className="text-center mb-16 text-2xl md:text-4xl relative before:content-[''] before:block before:w-10 before:h-0.5 before:bg-[#E6B980] before:mx-auto before:mb-4 before:opacity-50">
+            Ma Trận Mix & Match Toàn Diện
+          </h2>
+          <div className="glass-card rounded-3xl overflow-x-auto p-6 md:p-10">
+            <table className="w-full border-separate border-spacing-y-2 min-w-[600px]">
+              <thead>
+                <tr className="text-[#E6B980] text-[0.75rem] uppercase tracking-widest">
+                  <th className="text-left px-5 py-3 border-b border-white/10">Dòng sản phẩm</th>
+                  <th className="text-left px-5 py-3 border-b border-white/10">Tỷ lệ (R:C:A)</th>
+                  <th className="text-left px-5 py-3 border-b border-white/10">Gu vị</th>
+                  <th className="text-left px-5 py-3 border-b border-white/10">Giá sỉ (Direct)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="hover:bg-white/5 transition-colors group">
+                  <td className="px-5 py-4 bg-white/2 rounded-l-xl">Sài Gòn Mạnh (Pure)</td>
+                  <td className="px-5 py-4 bg-white/2">100 : 0 : 0</td>
+                  <td className="px-5 py-4 bg-white/2">Đắng gắt, mạnh mẽ</td>
+                  <td className="px-5 py-4 bg-white/2 rounded-r-xl font-bold group-hover:text-[#E6B980]">210,000đ</td>
+                </tr>
+                <tr className="hover:bg-white/5 transition-colors group">
+                  <td className="px-5 py-4 bg-white/2 rounded-l-xl">Sài Gòn Bold</td>
+                  <td className="px-5 py-4 bg-white/2">80 : 20 : 0</td>
+                  <td className="px-5 py-4 bg-white/2">Đậm đà, hậu vị sâu</td>
+                  <td className="px-5 py-4 bg-white/2 rounded-r-xl font-bold group-hover:text-[#E6B980]">250,000đ</td>
+                </tr>
+                <tr className="hover:bg-white/5 transition-colors group">
+                  <td className="px-5 py-4 bg-white/2 rounded-l-xl">Nhân Tâm Tâm Giao</td>
+                  <td className="px-5 py-4 bg-white/2">70 : 20 : 10</td>
+                  <td className="px-5 py-4 bg-white/2">Cân bằng, hương thanh</td>
+                  <td className="px-5 py-4 bg-white/2 rounded-r-xl font-bold group-hover:text-[#E6B980]">230,000đ</td>
+                </tr>
+                <tr className="hover:bg-white/5 transition-colors group">
+                  <td className="px-5 py-4 bg-white/2 rounded-l-xl">Modern Blend</td>
+                  <td className="px-5 py-4 bg-white/2">50 : 0 : 50</td>
+                  <td className="px-5 py-4 bg-white/2">Vị hiện đại, chua thanh</td>
+                  <td className="px-5 py-4 bg-white/2 rounded-r-xl font-bold group-hover:text-[#E6B980]">280,000đ</td>
+                </tr>
+                <tr className="hover:bg-white/5 transition-colors group">
+                  <td className="px-5 py-4 bg-white/2 rounded-l-xl">Tri Kỷ (Moka Pure)</td>
+                  <td className="px-5 py-4 bg-white/2">0 : 0 : 100</td>
+                  <td className="px-5 py-4 bg-white/2">100% Moka Cầu Đất</td>
+                  <td className="px-5 py-4 bg-white/2 rounded-r-xl font-bold group-hover:text-[#E6B980]">350,000đ</td>
+                </tr>
+              </tbody>
+            </table>
+            <div className="mt-8 p-6 bg-[#2D5A27]/20 border border-[#2D5A27]/40 rounded-2xl text-center">
+              <p className="text-sm font-medium">🔥 <strong>LƯU Ý CHIẾN LƯỢC:</strong> Toàn bộ bảng giá trên là giá sỉ áp dụng ngay từ <strong>1KG</strong>. Nhân Tâm loại bỏ hoàn toàn trung gian để sếp tối ưu lợi nhuận ly cà phê thấp nhất thị trường.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Financial Simulator */}
+        <section className="mb-24">
+          <h2 className="text-center mb-16 text-2xl md:text-4xl relative before:content-[''] before:block before:w-10 before:h-0.5 before:bg-[#E6B980] before:mx-auto before:mb-4 before:opacity-50">
+            Phòng Mô Phỏng Dòng Tiền (Financial Engine)
+          </h2>
+          <div className="glass-card rounded-[32px] p-6 md:p-12 relative overflow-hidden">
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                {/* Inputs Group 1 */}
+                <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                   <h4 className="text-[#E6B980] text-xs mb-6 uppercase tracking-wider">1. Sản Phẩm & Giá Bán</h4>
+                   <div className="mb-6">
+                      <div className="flex justify-between text-xs mb-3 opacity-60">
+                         <label>GIÁ BÁN SỈ TRUNG BÌNH</label>
+                         <span className="text-[#E6B980] font-bold">{formatVND(price)}</span>
+                      </div>
+                      <input type="range" min="180000" max="350000" step="5000" value={price} onChange={(e) => setPrice(parseInt(e.target.value))} className="w-full" />
+                   </div>
+                   <div className="mb-3">
+                      <div className="flex justify-between text-xs mb-3 opacity-60">
+                         <label>GIÁ HẠT ĐẦU VÀO (XƯỞNG)</label>
+                         <span className="font-bold">{formatVND(raw)}</span>
+                      </div>
+                      <input type="range" min="120000" max="220000" step="2000" value={raw} onChange={(e) => setRaw(parseInt(e.target.value))} className="w-full" />
+                   </div>
                 </div>
-                <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center
-                                text-[11px] font-bold shadow-sm self-end"
-                     style={{ background: 'var(--bg-header)', border: '1.5px solid #C65C3360',
-                              color: '#C65C33' }}>
-                  SN
+
+                {/* Inputs Group 2 */}
+                <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                   <h4 className="text-[#C65C33] text-xs mb-6 uppercase tracking-wider">2. Phân Phối & Chốt Đơn</h4>
+                   <div className="mb-6">
+                      <div className="flex justify-between text-xs mb-3 opacity-60">
+                         <label>HOA HỒNG/KG (SALES/CTV)</label>
+                         <span className="text-[#C65C33] font-bold">{formatVND(comm)}</span>
+                      </div>
+                      <input type="range" min="0" max="20000" step="500" value={comm} onChange={(e) => setComm(parseInt(e.target.value))} className="w-full" />
+                   </div>
+                   <div className="mb-3">
+                      <div className="flex justify-between text-xs mb-3 opacity-60">
+                         <label>NGÂN SÁCH QUẢNG CÁO/THÁNG</label>
+                         <span className="font-bold">{(ads/1000000).toFixed(0)}M</span>
+                      </div>
+                      <input type="range" min="0" max="100000000" step="5000000" value={ads} onChange={(e) => setAds(parseInt(e.target.value))} className="w-full" />
+                   </div>
                 </div>
+
+                {/* Inputs Group 3 */}
+                <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                   <h4 className="text-white text-xs mb-6 uppercase tracking-wider">3. Định Phí Vận Hành</h4>
+                   <div className="mb-8">
+                      <div className="h-2 bg-white/5 rounded-full overflow-hidden mb-3">
+                         <div className={`h-full transition-all duration-500 rounded-full ${roi >= 0 ? 'bg-[#2D5A27]' : 'bg-[#D62828]'}`} style={{ width: `${Math.min(Math.max((currentCash/INITIAL_CAPITAL)*100, 0), 100)}%` }} />
+                      </div>
+                      <p className="text-[0.65rem] text-center opacity-50 uppercase tracking-tighter">Vốn lưu động còn lại: {formatVND(INITIAL_CAPITAL + (monthlyProfit * 12))}</p>
+                   </div>
+                   <div className="mb-3">
+                      <div className="flex justify-between text-xs mb-3 opacity-60">
+                         <label>LƯƠNG & MẶT BẰNG & PHÍ CỐ ĐỊNH</label>
+                         <span className="font-bold">{(opex/1000000).toFixed(0)}M</span>
+                      </div>
+                      <input type="range" min="20000000" max="200000000" step="5000000" value={opex} onChange={(e) => setOpex(parseInt(e.target.value))} className="w-full" />
+                   </div>
+                </div>
+             </div>
+
+             {/* Results Section */}
+             <div className="bg-[#1B0D05] border border-white/5 rounded-3xl p-8 flex flex-col items-center">
+                <div className="text-[#E6B980] font-mono text-center mb-6 italic text-sm md:text-base leading-relaxed max-w-[800px]">
+                   {getAdvice()}
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
+                   <div className="bg-white/5 p-4 rounded-xl text-center border border-white/5 hover:border-[#E6B980]/30 transition-all">
+                      <div className="text-[0.6rem] text-white/40 uppercase mb-2">ROI (1 Năm)</div>
+                      <div className={`text-xl font-bold ${roi >= 0 ? 'text-[#2D5A27]' : 'text-[#D62828]'}`}>{roi.toFixed(1)}%</div>
+                   </div>
+                   <div className="bg-white/5 p-4 rounded-xl text-center border border-white/5 hover:border-[#E6B980]/30 transition-all">
+                      <div className="text-[0.6rem] text-white/40 uppercase mb-2">Hòa vốn (kg/tháng)</div>
+                      <div className="text-xl font-bold text-white">{bep.toLocaleString()} kg</div>
+                   </div>
+                   <div className="bg-white/5 p-4 rounded-xl text-center border border-white/5 hover:border-[#E6B980]/30 transition-all">
+                      <div className="text-[0.6rem] text-white/40 uppercase mb-2">Sản lượng thực tế</div>
+                      <div className="text-xl font-bold text-white">{Math.round(totalVolume).toLocaleString()} kg</div>
+                   </div>
+                   <div className="bg-white/5 p-4 rounded-xl text-center border border-white/5 hover:border-[#E6B980]/30 transition-all">
+                      <div className="text-[0.6rem] text-white/40 uppercase mb-2">Lợi nhuận ròng/tháng</div>
+                      <div className={`text-xl font-bold ${monthlyProfit >= 0 ? 'text-[#2D5A27]' : 'text-[#D62828]'}`}>{formatVND(monthlyProfit)}</div>
+                   </div>
+                </div>
+             </div>
+          </div>
+        </section>
+
+        {/* Objections Handling */}
+        <section className="mb-24">
+           <h2 className="text-center mb-16 text-2xl md:text-4xl relative before:content-[''] before:block before:w-10 before:h-0.5 before:bg-[#E6B980] before:mx-auto before:mb-4 before:opacity-50">
+             Sales Objection Handling (Vũ khí thực chiến)
+           </h2>
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="glass-card p-8 rounded-2xl border-l-4 border-l-[#C65C33]">
+                 <h3 className="text-lg text-[#E6B980] mb-4">"Giá này còn cao so với hàng chợ?"</h3>
+                 <p className="text-sm opacity-80 leading-relaxed italic">
+                    "Sếp ơi, hàng chợ là hạt trộn đậu, bắp, cháy khét. 1kg pha được 40 ly. Hạt Nhân Tâm mộc 100%, sếp pha được 55-60 ly. Tính ra giá vốn mỗi ly nhà mình chỉ 5.000đ - 6.000đ. Cà phê xịn mà giá vốn rẻ hơn cà phê bẩn, tội gì khách bỏ mình đi?"
+                 </p>
               </div>
-            ) : (
-              /* Meeting thread — left aligned group chat */
-              <MeetingThread
-                content={msg.content}
-                isStreaming={isStreaming}
-                isLast={idx === messages.length - 1}
-              />
-            )}
-          </div>
-        ))}
+              <div className="glass-card p-8 rounded-2xl border-l-4 border-l-[#2D5A27]">
+                 <h3 className="text-lg text-[#E6B980] mb-4">"Mua 1kg có thực sự được giá sỉ?"</h3>
+                 <p className="text-sm opacity-80 leading-relaxed italic">
+                    "Dạ đúng rồi ạ. Đây là chiến lược Direct Distribution (Trực tiếp từ xưởng). Nhân Tâm bỏ qua mọi đại lý trung gian, mọi chi phí sale rườm rà để sếp được hưởng tận gốc. Một kg cũng là sỉ, vì chúng ta đồng hành cùng nhau lâu dài."
+                 </p>
+              </div>
+           </div>
+        </section>
 
-        <div ref={bottomRef} className="h-1" />
-      </main>
-
-      {/* ── Input footer ──────────────────────────────────────────────── */}
-      <footer className="flex-shrink-0 border-t px-3 pt-3"
-              style={{
-                background: 'var(--bg-header)',
-                borderColor: 'var(--border)',
-                paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
-              }}>
-        <div className="flex gap-2 items-end">
-          <textarea
-            ref={textareaRef}
-            value={input}
-            rows={1}
-            onChange={e => { setInput(e.target.value); autoResize(e.target); }}
-            onKeyDown={onKeyDown}
-            disabled={isStreaming || isExecuting}
-            placeholder="Nhập task cho Thương... (Enter để gửi)"
-            className="flex-1 rounded-2xl px-4 py-3 focus:outline-none resize-none
-                       disabled:opacity-50 transition-all text-[16px] sm:text-sm"
-            style={{
-              background: 'var(--bg-input)',
-              border: '1.5px solid var(--border)',
-              color: 'var(--text)',
-              maxHeight: 120,
-              overflowY: 'auto',
-              lineHeight: '1.5',
-            }}
-          />
-          {/* Send button — 48px tap target */}
-          <button
-            onClick={sendMessage}
-            disabled={isStreaming || isExecuting || !input.trim()}
-            className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center
-                       transition-all active:scale-95 disabled:opacity-40 hover:opacity-85 shadow"
-            style={{ background: '#C65C33', color: '#FDF8ED' }}>
-            {isStreaming
-              ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="22" y1="2" x2="11" y2="13"/>
-                  <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                </svg>
-            }
-          </button>
+        {/* CTA */}
+        <div className="bg-[#C65C33] p-12 rounded-[40px] text-center shadow-3xl transform hover:scale-[1.02] transition-transform duration-500">
+           <p className="uppercase tracking-[4px] text-xs font-bold mb-4">Mô hình kinh doanh không trung gian</p>
+           <h2 className="text-3xl md:text-5xl font-black mb-8 leading-tight">SẴN SÀNG THỐNG LĨNH<br/> THỊ PHẦN CAFE SẠCH?</h2>
+           <div className="flex flex-wrap justify-center gap-6">
+              <Link href="https://zalo.me/yourid" className="bg-[#1B0D05] text-white px-10 py-5 rounded-2xl font-bold hover:bg-black transition-all shadow-xl text-lg">
+                Nhận Báo Giá Zalo (Lead Gen)
+              </Link>
+              <Link href="/meeting" className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-10 py-5 rounded-2xl font-bold hover:bg-white/20 transition-all shadow-xl text-lg">
+                Họp Chiến Lược Với Thương 🧠
+              </Link>
+           </div>
         </div>
 
-        <p className="text-center text-[11px] mt-2 pb-0.5" style={{ color: 'var(--text-muted)', opacity: 0.45 }}>
-          Shift+Enter để xuống dòng
+      </main>
+
+      <footer className="bg-[#120904] py-20 px-6 text-center border-t border-white/10">
+        <Image 
+          src="/logos/official_logo_horizontal_transparent.png" 
+          alt="Nhân Tâm Logo" 
+          width={200} 
+          height={60} 
+          className="opacity-30 mx-auto mb-8 grayscale"
+        />
+        <p className="text-xs text-white/30 uppercase tracking-[4px] mb-6">
+          Nhân Tâm Coffee Framework v6.2 • Business Intelligence System
         </p>
+        <div className="flex justify-center flex-col items-center gap-4">
+           <p className="text-sm text-white/50 bg-white/5 px-6 py-2 rounded-full border border-white/10">
+              Biên tập & Quản trị: <span className="text-[#E6B980] font-bold">Thương · Thư ký của Sếp Nhân</span>
+           </p>
+           <div className="flex gap-4">
+              <span className="bg-[#C65C33] text-white px-3 py-1 rounded text-[0.6rem] font-bold tracking-tighter">DIRECT DISTRIBUTION 2026</span>
+              <span className="bg-[#2D5A27] text-white px-3 py-1 rounded text-[0.6rem] font-bold tracking-tighter">ZERO-MIDDLEMAN MODEL</span>
+           </div>
+        </div>
       </footer>
     </div>
   );

@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "functions": {
+    "/api/meeting": {},
+    "/api/meeting/execute": {},
+    "/api/meeting/save": {},
+    "/api/meeting/sync-brand": {}
+  }
+}

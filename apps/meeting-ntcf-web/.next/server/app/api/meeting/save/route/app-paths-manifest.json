@@ -1,0 +1,3 @@
+{
+  "/api/meeting/save/route": "app/api/meeting/save/route.js"
+}

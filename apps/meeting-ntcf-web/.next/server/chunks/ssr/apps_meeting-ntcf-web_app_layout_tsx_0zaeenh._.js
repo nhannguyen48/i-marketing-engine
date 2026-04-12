@@ -1,0 +1,3 @@
+module.exports=[30408,a=>{"use strict";var b=a.i(94840);a.s(["default",0,function({children:a}){return(0,b.jsx)("html",{lang:"vi",children:(0,b.jsx)("body",{className:"min-h-screen",children:a})})},"metadata",0,{title:"Phòng Họp Nhân Tâm",description:"Virtual meeting room — Cà Phê Nhân Tâm"},"viewport",0,{width:"device-width",initialScale:1,maximumScale:1,viewportFit:"cover"}])},11421,a=>{a.n(a.i(30408))}];
+
+//# sourceMappingURL=apps_meeting-ntcf-web_app_layout_tsx_0zaeenh._.js.map
