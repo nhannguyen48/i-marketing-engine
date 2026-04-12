@@ -9,20 +9,20 @@
 
 | Dòng sản phẩm | Đặc tính | Gu vị | Giá sỉ (VNĐ/kg) |
 | :--- | :--- | :--- | :--- |
-| **NHÂN TÂM - TÂM GIAO** | Blend 3 loại hạt: R - C - A | Đắng đượm, body dày, thơm sâu | **230,000** |
-| **SÀI GÒN ĐẬM CHẤT** | 80% Culi, 20% Robusta | Đắng gắt, tỉnh táo, cực mạnh | **215,000** |
-| **HƯƠNG VỊ TRI KỶ** | 70% Arabica Moka cao cấp | Chua thanh, hương hoa rừng | **315,000** |
+| **SÀI GÒN BOLD** | 80% R, 20% C | Đậm đà, hậu vị sâu | **250,000** |
+| **SÀI GÒN MẠNH** | 100% Robusta | Mạnh mẽ, đắng gắt | **210,000** |
+| **NHÂN TÂM - TÂM GIAO** | 70% R: 20% C: 10% A | Cân bằng, hương thanh | **230,000** |
 
 ---
 
 ## 📦 2. DÒNG MIX & MATCH TIÊU CHUẨN
 *Lựa chọn linh hoạt để tối ưu hóa giá vốn nguyên liệu.*
 
-- **Sài Gòn Mạnh (100% Robusta Rang Đậm)**: **210,000đ**
-- **Culi Pure (100% Culi Chọn Lọc)**: **215,000đ**
-- **Sài Gòn Bold (Flagship 70% R : 30% A)**: **250,000đ** (Mũi nhọn cho Espresso)
-- **Modern Blend (50% R : 50% A)**: **285,000đ**
-- **Elite Elite (100% Arabica Moka)**: **360,000đ**
+- **Sài Gòn Mạnh (100% Robusta)**: **210,000đ**
+- **Sài Gòn Bold (Gu Sài Gòn Đậm)**: **250,000đ**
+- **Nhân Tâm Tâm Giao (Standard)**: **230,000đ**
+- **Modern Blend (50% R : 50% A)**: **280,000đ**
+- **Tri Kỷ (100% Moka Cầu Đất)**: **350,000đ**
 
 ---
 
