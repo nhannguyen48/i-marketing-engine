@@ -53,4 +53,4 @@
 **Cùng phát triển quán của bạn?**
 Nhắn tin cho Nhân Tâm để nhận mẫu thử hoặc nhận file phân tích điểm hòa vốn ngay hôm nay!
 
-*Hệ thống ClaudeKit Marketing — Vận hành bằng con số & Sự chân thành.*
+*Hệ thống ClaudeKit Marketing — Vận hành bằng con số & Sự chân thành (Thương - Thư ký).*

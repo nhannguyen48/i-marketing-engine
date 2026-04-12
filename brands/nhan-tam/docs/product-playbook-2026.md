@@ -73,4 +73,4 @@
 3. **Sự chân thành:** Chúng tôi là xưởng rang trực tiếp. Bạn làm việc với chúng tôi là làm việc với "gốc" của sản phẩm.
 
 ---
-*Lưu biểu vào hệ thống: 12/04/2026 bởi Thương (AI Business Advisor).*
+*Lưu biểu vào hệ thống: 12/04/2026 bởi Thương (Thư ký sếp Nhân).*

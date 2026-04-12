@@ -516,7 +516,7 @@ export default function MeetingPage() {
               Phòng Họp Nhân Tâm
             </p>
             <p className="text-[11px] leading-tight mt-0.5" style={{ color: 'var(--text-muted)' }}>
-              Thương & Team · Cố vấn Marketing
+              Thương · Thư ký của Sếp Nhân
             </p>
           </div>
 
