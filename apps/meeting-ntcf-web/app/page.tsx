@@ -513,10 +513,10 @@ export default function MeetingPage() {
 
           <div className="flex-1 min-w-0">
             <p className="font-bold text-sm leading-tight" style={{ color: 'var(--text)' }}>
-              Phòng Chiến Lược Nhân Tâm
+              Phòng Họp Nhân Tâm
             </p>
             <p className="text-[11px] leading-tight mt-0.5" style={{ color: 'var(--text-muted)' }}>
-              Thương & Team · Giải pháp Vận hành
+              Thương & Team · Cố vấn Marketing
             </p>
           </div>
 
@@ -575,14 +575,14 @@ export default function MeetingPage() {
               <p className="font-bold text-xl" style={{ color: 'var(--text)' }}>Chào Sếp Nhân!</p>
               <p className="text-sm mt-1.5 leading-relaxed max-w-[260px] mx-auto"
                  style={{ color: 'var(--text-muted)' }}>
-                Thương đang trực phí. Sếp muốn tối ưu chỉ số kinh doanh nào hôm nay?
+                Thương đang trực máy. Sếp muốn chuẩn bị nội dung hay phân tích thị trường gì hôm nay?
               </p>
             </div>
             <div className="flex flex-col gap-2.5 w-full max-w-sm">
               {[
-                'Phân tích định mức và biên lợi nhuận',
-                'Kế hoạch tối ưu vận hành Kiosk',
-                'Chiến lược Direct Sales chuẩn bị Launch',
+                'Lên kế hoạch nội dung Facebook thực chiến',
+                'Phân tích đối thủ và tìm giải pháp khác biệt',
+                'Chiến lược thu hút khách hàng cho quán mới',
               ].map(s => (
                 <button key={s}
                   onClick={() => { setInput(s); textareaRef.current?.focus(); }}
